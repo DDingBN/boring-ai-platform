@@ -6,7 +6,7 @@ const demoGraph: WorkflowGraph = {
 };
 
 function App() {
-  return <div>web is running</div>;
+  return <div>web is running, workflow nodes: {demoGraph.nodes.length}</div>;
 }
 
 export default App;
