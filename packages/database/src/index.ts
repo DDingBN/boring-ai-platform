@@ -1,7 +1,7 @@
 export interface DatabaseConfig {
-  url: string;
+    url: string;
 }
 
 export interface DatabaseHealth {
-  ok: boolean;
+    ok: boolean;
 }

@@ -1,12 +1,7 @@
-import type { WorkflowGraph } from "@repo/shared";
-
-const demoGraph: WorkflowGraph = {
-  nodes: [],
-  edges: []
-};
+import { MainLayout } from './components/layouts/Main';
 
 function App() {
-  return <div>web is running, workflow nodes: {demoGraph.nodes.length}</div>;
+    return <MainLayout />;
 }
 
 export default App;
