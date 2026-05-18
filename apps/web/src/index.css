@@ -15,16 +15,30 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
+html,
+body {
+    height: 100%;
+}
+
 body {
     margin: 0;
 }
 
 #root {
-    min-height: 100vh;
+    height: 100%;
+    min-width: 0;
 }
 
 .app-layout {
-    min-height: 100vh;
+    height: 100vh;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.app-layout__body {
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
 }
 
 .layout-sider__brand {
@@ -34,6 +48,11 @@ body {
     gap: 10px;
     height: 64px;
     padding: 0 20px;
+}
+
+.ant-layout-sider-collapsed .layout-sider__brand {
+    justify-content: center;
+    padding: 0;
 }
 
 .layout-sider__mark {
@@ -59,19 +78,30 @@ body {
     background: #fff;
     border-bottom: 1px solid #eef0f4;
     display: flex;
+    flex: 0 0 64px;
     height: 64px;
     justify-content: space-between;
-    padding: 0 24px;
+    min-width: 0;
+    padding: 0 24px 0 0;
 }
 
 .app-layout__main {
     background: #f4f6f8;
+    display: flex;
     flex: 1;
-    padding: 20px 24px 0;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+    padding: 16px;
 }
 
 .layout-content {
-    margin-top: 16px;
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+    width: 100%;
 }
 
 .layout-content__inner {
@@ -82,7 +112,8 @@ body {
 
 .layout-footer {
     background: #f4f6f8;
-    padding: 18px 24px;
+    flex: 0 0 auto;
+    padding: 10px 0;
     text-align: center;
 }
 

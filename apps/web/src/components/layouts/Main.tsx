@@ -1,49 +1,62 @@
 import { Layout } from 'antd';
-import { useMemo, useState } from 'react';
 import type { MenuProps } from 'antd';
-import { LayoutBreadcrumb } from './Breadcrumb';
+import { useMemo, useState } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import {
+    defaultMenuPath,
+    getBreadcrumbItems,
+    getMenuItemByPath,
+    getMenuPathKeys,
+} from '../../data/menuData';
+import { getRouteMeta } from '../../data/routeMeta';
+
 import { LayoutContent } from './Content';
 import { LayoutFooter } from './Footer';
 import { LayoutHeader } from './Header';
 import { LayoutSider } from './Sider';
 
-const menuTitles: Record<string, string> = {
-    'workflow-list': '工作流列表',
-    'workflow-create': '新建工作流',
-    datasets: '数据集',
-    documents: '文档管理',
-    members: '成员管理',
-    models: '模型配置',
-};
-
 export function MainLayout() {
+    const location = useLocation();
+    const navigate = useNavigate();
     const [collapsed, setCollapsed] = useState(false);
-    const [selectedKey, setSelectedKey] = useState('workflow-list');
 
-    const title = menuTitles[selectedKey] ?? '工作台';
-    const breadcrumbItems = useMemo(() => [{ title: '首页' }, { title }], [title]);
+    const activeMenuItem = getMenuItemByPath(location.pathname);
+    const activeRouteMeta = getRouteMeta(location.pathname);
+    const activePath = activeMenuItem?.path ?? defaultMenuPath;
+    const activeMenuKeys = useMemo(() => getMenuPathKeys(activePath), [activePath]);
+    const breadcrumbItems = useMemo(() => {
+        if (activeMenuItem) {
+            return getBreadcrumbItems(activePath);
+        }
+
+        return activeRouteMeta?.breadcrumbItems ?? [{ title: '首页' }, { title: '页面不存在' }];
+    }, [activeRouteMeta, activeMenuItem, activePath]);
+    const title = activeMenuItem?.label ?? activeRouteMeta?.title ?? '页面不存在';
 
     const handleMenuSelect: MenuProps['onSelect'] = ({ key }) => {
-        setSelectedKey(String(key));
+        navigate(String(key));
     };
 
     return (
         <Layout className="app-layout">
             <LayoutSider
                 collapsed={collapsed}
+                defaultOpenKeys={activeMenuItem ? activeMenuKeys.slice(0, -1) : []}
                 onCollapse={setCollapsed}
                 onMenuSelect={handleMenuSelect}
-                selectedKey={selectedKey}
+                selectedKey={activeMenuItem ? activePath : undefined}
             />
-            <Layout>
+            <Layout className="app-layout__body">
                 <LayoutHeader
+                    breadcrumbItems={breadcrumbItems}
                     collapsed={collapsed}
                     onToggleSider={() => setCollapsed((value) => !value)}
                     title={title}
                 />
                 <main className="app-layout__main">
-                    <LayoutBreadcrumb items={breadcrumbItems} />
-                    <LayoutContent title={title} />
+                    <LayoutContent>
+                        <Outlet />
+                    </LayoutContent>
                 </main>
                 <LayoutFooter />
             </Layout>

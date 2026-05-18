@@ -5,11 +5,7 @@ export type LayoutBreadcrumbProps = {
     items?: BreadcrumbProps['items'];
 };
 
-const defaultBreadcrumbItems: BreadcrumbProps['items'] = [
-    { title: '首页' },
-    { title: '工作流' },
-    { title: '工作流列表' },
-];
+const defaultBreadcrumbItems: BreadcrumbProps['items'] = [];
 
 export function LayoutBreadcrumb({ items = defaultBreadcrumbItems }: LayoutBreadcrumbProps) {
     return <AntBreadcrumb items={items} />;

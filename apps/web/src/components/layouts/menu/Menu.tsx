@@ -1,36 +1,14 @@
 import { Menu as AntMenu } from 'antd';
 import type { MenuProps } from 'antd';
-import { createSubMenu, type LayoutMenuItem } from './SubMenu';
+import { menuData } from '../../../data/menuData';
+import { createMenuItem, type LayoutMenuItem } from './SubMenu';
 
-export const layoutMenuItems: LayoutMenuItem[] = [
-    createSubMenu({
-        key: 'workflow',
-        label: '工作流',
-        children: [
-            { key: 'workflow-list', label: '工作流列表' },
-            { key: 'workflow-create', label: '新建工作流' },
-        ],
-    }),
-    createSubMenu({
-        key: 'knowledge',
-        label: '知识库',
-        children: [
-            { key: 'datasets', label: '数据集' },
-            { key: 'documents', label: '文档管理' },
-        ],
-    }),
-    createSubMenu({
-        key: 'settings',
-        label: '系统设置',
-        children: [
-            { key: 'members', label: '成员管理' },
-            { key: 'models', label: '模型配置' },
-        ],
-    }),
-];
+export const layoutMenuItems = menuData.map(createMenuItem);
 
 export type LayoutMenuProps = {
     items?: LayoutMenuItem[];
+    collapsed?: boolean;
+    defaultOpenKeys?: string[];
     mode?: MenuProps['mode'];
     selectedKey?: string;
     theme?: MenuProps['theme'];
@@ -39,8 +17,10 @@ export type LayoutMenuProps = {
 
 export function LayoutMenu({
     items = layoutMenuItems,
+    collapsed = false,
+    defaultOpenKeys,
     mode = 'inline',
-    selectedKey = 'workflow-list',
+    selectedKey,
     theme = 'light',
     onSelect,
 }: LayoutMenuProps) {
@@ -49,6 +29,8 @@ export function LayoutMenu({
             items={items}
             mode={mode}
             onSelect={onSelect}
+            defaultOpenKeys={defaultOpenKeys}
+            inlineCollapsed={mode === 'inline' ? collapsed : undefined}
             selectedKeys={selectedKey ? [selectedKey] : []}
             style={{ borderInlineEnd: 0 }}
             theme={theme}

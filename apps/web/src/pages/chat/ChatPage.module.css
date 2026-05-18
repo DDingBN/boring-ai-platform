@@ -1,0 +1,76 @@
+.page {
+    display: flex;
+    flex: 1;
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
+    width: 100%;
+}
+
+.panel {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+    width: 100%;
+}
+
+.panel :global(.ant-card-head) {
+    flex: 0 0 auto;
+}
+
+.panel :global(.ant-card-body) {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.messages {
+    flex: 1;
+    margin-bottom: 16px;
+    min-height: 0;
+    min-width: 0;
+    overflow: auto;
+}
+
+.message {
+    border-block-end: 0 !important;
+    padding: 8px 0 !important;
+}
+
+.userMessage {
+    justify-content: flex-end;
+}
+
+.bubble {
+    background: #f4f6f8;
+    border-radius: 8px;
+    max-width: min(720px, 84%);
+    padding: 12px 14px;
+}
+
+.userMessage .bubble {
+    background: #e6f4ff;
+}
+
+.content {
+    margin: 6px 0 0 !important;
+    white-space: pre-wrap;
+}
+
+.composer {
+    display: flex;
+    flex: 0 0 auto;
+    min-width: 0;
+    width: 100%;
+}
+
+.composer textarea {
+    resize: none;
+}

@@ -1,0 +1,6 @@
+.page {
+    background: #fff;
+    border-radius: 8px;
+    min-height: calc(100vh - 154px);
+    padding-top: 72px;
+}

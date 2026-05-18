@@ -6,6 +6,7 @@ const { Sider: AntSider } = Layout;
 
 export type LayoutSiderProps = {
     collapsed?: boolean;
+    defaultOpenKeys?: string[];
     selectedKey?: string;
     onCollapse?: (collapsed: boolean) => void;
     onMenuSelect?: MenuProps['onSelect'];
@@ -13,6 +14,7 @@ export type LayoutSiderProps = {
 
 export function LayoutSider({
     collapsed = false,
+    defaultOpenKeys,
     selectedKey,
     onCollapse,
     onMenuSelect,
@@ -22,7 +24,6 @@ export function LayoutSider({
             breakpoint="lg"
             collapsed={collapsed}
             collapsedWidth={72}
-            collapsible
             onCollapse={onCollapse}
             theme="light"
             width={248}
@@ -35,7 +36,12 @@ export function LayoutSider({
                     </Typography.Text>
                 )}
             </div>
-            <LayoutMenu onSelect={onMenuSelect} selectedKey={selectedKey} />
+            <LayoutMenu
+                collapsed={collapsed}
+                defaultOpenKeys={defaultOpenKeys}
+                onSelect={onMenuSelect}
+                selectedKey={selectedKey}
+            />
         </AntSider>
     );
 }
