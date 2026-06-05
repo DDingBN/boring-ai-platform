@@ -1,0 +1,1 @@
+export type KnowledgeType = 'private' | 'shared' | 'public' | 'temporary';
