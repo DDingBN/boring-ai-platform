@@ -6,17 +6,19 @@ const { Sider: AntSider } = Layout;
 
 export type LayoutSiderProps = {
     collapsed?: boolean;
-    defaultOpenKeys?: string[];
+    openKeys?: string[];
     selectedKey?: string;
     onCollapse?: (collapsed: boolean) => void;
+    onMenuOpenChange?: MenuProps['onOpenChange'];
     onMenuSelect?: MenuProps['onSelect'];
 };
 
 export function LayoutSider({
     collapsed = false,
-    defaultOpenKeys,
+    openKeys,
     selectedKey,
     onCollapse,
+    onMenuOpenChange,
     onMenuSelect,
 }: LayoutSiderProps) {
     return (
@@ -38,8 +40,9 @@ export function LayoutSider({
             </div>
             <LayoutMenu
                 collapsed={collapsed}
-                defaultOpenKeys={defaultOpenKeys}
+                onOpenChange={onMenuOpenChange}
                 onSelect={onMenuSelect}
+                openKeys={openKeys}
                 selectedKey={selectedKey}
             />
         </AntSider>

@@ -5,6 +5,7 @@ export type MenuDataItem = {
     label: string;
     icon?: MenuIconName;
     path?: string;
+    requiredPermissions?: string[];
     children?: MenuDataItem[];
 };
 

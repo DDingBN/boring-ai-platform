@@ -1,36 +1,48 @@
 import { Menu as AntMenu } from 'antd';
 import type { MenuProps } from 'antd';
+import { useMemo } from 'react';
 import { menuData } from '../../../data/menuData';
-import { createMenuItem, type LayoutMenuItem } from './SubMenu';
+import {
+    createLayoutMenuItems,
+    type CreateLayoutMenuItemsOptions,
+    type LayoutMenuItem,
+} from './menuItems';
 
-export const layoutMenuItems = menuData.map(createMenuItem);
-
-export type LayoutMenuProps = {
+export type LayoutMenuProps = CreateLayoutMenuItemsOptions & {
     items?: LayoutMenuItem[];
     collapsed?: boolean;
-    defaultOpenKeys?: string[];
     mode?: MenuProps['mode'];
+    openKeys?: string[];
     selectedKey?: string;
     theme?: MenuProps['theme'];
+    onOpenChange?: MenuProps['onOpenChange'];
     onSelect?: MenuProps['onSelect'];
 };
 
 export function LayoutMenu({
-    items = layoutMenuItems,
+    hasPermission,
+    items,
     collapsed = false,
-    defaultOpenKeys,
     mode = 'inline',
+    openKeys,
     selectedKey,
     theme = 'light',
+    onOpenChange,
     onSelect,
 }: LayoutMenuProps) {
+    const menuItems = useMemo(
+        () => items ?? createLayoutMenuItems(menuData, { hasPermission }),
+        [hasPermission, items],
+    );
+
     return (
         <AntMenu
-            items={items}
+            items={menuItems}
             mode={mode}
+            onOpenChange={onOpenChange}
             onSelect={onSelect}
-            defaultOpenKeys={defaultOpenKeys}
             inlineCollapsed={mode === 'inline' ? collapsed : undefined}
+            openKeys={mode === 'inline' ? openKeys : undefined}
             selectedKeys={selectedKey ? [selectedKey] : []}
             style={{ borderInlineEnd: 0 }}
             theme={theme}

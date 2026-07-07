@@ -1,6 +1,6 @@
 import { Layout } from 'antd';
 import type { MenuProps } from 'antd';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
     defaultMenuPath,
@@ -19,11 +19,16 @@ export function MainLayout() {
     const location = useLocation();
     const navigate = useNavigate();
     const [collapsed, setCollapsed] = useState(false);
+    const [openMenuKeys, setOpenMenuKeys] = useState<string[]>([]);
 
     const activeMenuItem = getMenuItemByPath(location.pathname);
     const activeRouteMeta = getRouteMeta(location.pathname);
     const activePath = activeMenuItem?.path ?? defaultMenuPath;
     const activeMenuKeys = useMemo(() => getMenuPathKeys(activePath), [activePath]);
+    const activeOpenMenuKeys = useMemo(
+        () => (activeMenuItem ? activeMenuKeys.slice(0, -1) : []),
+        [activeMenuItem, activeMenuKeys],
+    );
     const breadcrumbItems = useMemo(() => {
         if (activeMenuItem) {
             return getBreadcrumbItems(activePath);
@@ -37,13 +42,22 @@ export function MainLayout() {
         navigate(String(key));
     };
 
+    const handleMenuOpenChange: MenuProps['onOpenChange'] = (keys) => {
+        setOpenMenuKeys(keys.map(String));
+    };
+
+    useEffect(() => {
+        setOpenMenuKeys(activeOpenMenuKeys);
+    }, [activeOpenMenuKeys]);
+
     return (
         <Layout className="app-layout">
             <LayoutSider
                 collapsed={collapsed}
-                defaultOpenKeys={activeMenuItem ? activeMenuKeys.slice(0, -1) : []}
                 onCollapse={setCollapsed}
+                onMenuOpenChange={handleMenuOpenChange}
                 onMenuSelect={handleMenuSelect}
+                openKeys={openMenuKeys}
                 selectedKey={activeMenuItem ? activePath : undefined}
             />
             <Layout className="app-layout__body">
