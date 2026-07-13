@@ -1,7 +1,9 @@
 import express from 'express';
 import type { WorkflowGraph } from '@repo/shared';
+import { loadServerConfig } from './config/env';
 
 const app = express();
+const config = loadServerConfig();
 
 app.get('/health', (_req, res) => {
     const demoGraph: WorkflowGraph = {
@@ -15,6 +17,6 @@ app.get('/health', (_req, res) => {
     });
 });
 
-app.listen(3001, () => {
-    console.log('server running at http://localhost:3001');
+app.listen(config.port, config.host, () => {
+    console.log(`server running at http://${config.host}:${config.port}`);
 });

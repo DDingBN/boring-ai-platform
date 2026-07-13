@@ -2,6 +2,23 @@
 
 A monorepo-based AI workflow and agent platform.
 
+## Requirements
+
+- Node.js `22.12.0`
+- pnpm `10.25.0`
+
+## Local development
+
+```bash
+cp .env.example .env
+pnpm install
+pnpm dev
+```
+
+The included environment example is intentionally key-free: the current project can start without an API key. Both the API and web development servers bind to `127.0.0.1` by default. Configuration is validated at startup; see `.env.example` for the supported local settings.
+
+For a local DeepSeek test, add `DEEPSEEK_API_KEY=...` only to your untracked root `.env`. It is loaded by the server process and must never use a `VITE_` prefix, which would expose it to browser code. Leave the value empty in `.env.example`.
+
 ## Apps
 
 - web: frontend application
