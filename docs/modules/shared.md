@@ -82,13 +82,7 @@ export type StreamEvent =
 建议方向：
 
 ```ts
-export type WorkflowNode =
-  | StartNode
-  | PromptNode
-  | LlmNode
-  | RagNode
-  | ToolNode
-  | EndNode;
+export type WorkflowNode = StartNode | PromptNode | LlmNode | RagNode | ToolNode | EndNode;
 ```
 
 每种节点拥有自己的 `data.config`，例如：

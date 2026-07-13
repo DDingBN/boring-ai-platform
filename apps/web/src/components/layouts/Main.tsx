@@ -1,6 +1,6 @@
 import { Layout } from 'antd';
 import type { MenuProps } from 'antd';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
     defaultMenuPath,
@@ -19,7 +19,7 @@ export function MainLayout() {
     const location = useLocation();
     const navigate = useNavigate();
     const [collapsed, setCollapsed] = useState(false);
-    const [openMenuKeys, setOpenMenuKeys] = useState<string[]>([]);
+    const [menuState, setMenuState] = useState<{ keys: string[]; path: string } | null>(null);
 
     const activeMenuItem = getMenuItemByPath(location.pathname);
     const activeRouteMeta = getRouteMeta(location.pathname);
@@ -37,18 +37,15 @@ export function MainLayout() {
         return activeRouteMeta?.breadcrumbItems ?? [{ title: '首页' }, { title: '页面不存在' }];
     }, [activeRouteMeta, activeMenuItem, activePath]);
     const title = activeMenuItem?.label ?? activeRouteMeta?.title ?? '页面不存在';
+    const openMenuKeys = menuState?.path === activePath ? menuState.keys : activeOpenMenuKeys;
 
     const handleMenuSelect: MenuProps['onSelect'] = ({ key }) => {
         navigate(String(key));
     };
 
     const handleMenuOpenChange: MenuProps['onOpenChange'] = (keys) => {
-        setOpenMenuKeys(keys.map(String));
+        setMenuState({ keys: keys.map(String), path: activePath });
     };
-
-    useEffect(() => {
-        setOpenMenuKeys(activeOpenMenuKeys);
-    }, [activeOpenMenuKeys]);
 
     return (
         <Layout className="app-layout">

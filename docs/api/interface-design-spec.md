@@ -32,26 +32,26 @@
 
 第一阶段核心资源：
 
-| 资源 | 含义 |
-| --- | --- |
-| `Conversation` | 一组连续 chat 消息 |
-| `Message` | 会话中的单条消息 |
-| `Run` | 一次 AI 任务执行 |
-| `RunStep` | 一次 Run 内的执行步骤 |
-| `TraceEvent` | Run 或 RunStep 的细粒度事件 |
-| `ModelConfig` | 模型 provider、model、参数 |
+| 资源           | 含义                        |
+| -------------- | --------------------------- |
+| `Conversation` | 一组连续 chat 消息          |
+| `Message`      | 会话中的单条消息            |
+| `Run`          | 一次 AI 任务执行            |
+| `RunStep`      | 一次 Run 内的执行步骤       |
+| `TraceEvent`   | Run 或 RunStep 的细粒度事件 |
+| `ModelConfig`  | 模型 provider、model、参数  |
 
 后续资源：
 
-| 资源 | 阶段 |
-| --- | --- |
-| `KnowledgeBase` | RAG |
-| `Document` | RAG |
-| `DocumentChunk` | RAG |
-| `Embedding` | RAG |
-| `Workflow` | Workflow |
-| `WorkflowVersion` | Workflow |
-| `ToolCall` | Tools / Agents |
+| 资源              | 阶段           |
+| ----------------- | -------------- |
+| `KnowledgeBase`   | RAG            |
+| `Document`        | RAG            |
+| `DocumentChunk`   | RAG            |
+| `Embedding`       | RAG            |
+| `Workflow`        | Workflow       |
+| `WorkflowVersion` | Workflow       |
+| `ToolCall`        | Tools / Agents |
 
 ## 4. API 分层
 
@@ -141,12 +141,12 @@ POST /api/runWorkflowById
 
 ## 6. HTTP 方法规范
 
-| 方法 | 用途 |
-| --- | --- |
-| `GET` | 查询资源，不产生副作用 |
-| `POST` | 创建资源或触发动作 |
-| `PATCH` | 局部更新资源 |
-| `DELETE` | 删除资源 |
+| 方法     | 用途                   |
+| -------- | ---------------------- |
+| `GET`    | 查询资源，不产生副作用 |
+| `POST`   | 创建资源或触发动作     |
+| `PATCH`  | 局部更新资源           |
+| `DELETE` | 删除资源               |
 
 规则：
 
@@ -232,16 +232,16 @@ type ApiErrorCode =
 
 HTTP 状态码映射：
 
-| 状态码 | 错误码 |
-| --- | --- |
-| `400` | `INVALID_REQUEST` |
-| `401` | `UNAUTHORIZED` |
-| `403` | `FORBIDDEN` |
-| `404` | `NOT_FOUND` |
-| `409` | `CONFLICT` |
-| `429` | `RATE_LIMITED` |
-| `500` | `INTERNAL_ERROR` |
-| `502` | `MODEL_PROVIDER_ERROR` |
+| 状态码 | 错误码                 |
+| ------ | ---------------------- |
+| `400`  | `INVALID_REQUEST`      |
+| `401`  | `UNAUTHORIZED`         |
+| `403`  | `FORBIDDEN`            |
+| `404`  | `NOT_FOUND`            |
+| `409`  | `CONFLICT`             |
+| `429`  | `RATE_LIMITED`         |
+| `500`  | `INTERNAL_ERROR`       |
+| `502`  | `MODEL_PROVIDER_ERROR` |
 
 禁止返回：
 
@@ -575,12 +575,12 @@ interface ChatResponse {
 
 错误：
 
-| 条件 | 状态码 | 错误码 |
-| --- | --- | --- |
-| 请求为空 | `400` | `INVALID_REQUEST` |
-| API key 缺失 | `400` | `MISSING_API_KEY` |
-| conversation 不存在 | `404` | `CONVERSATION_NOT_FOUND` |
-| provider 失败 | `502` | `MODEL_PROVIDER_ERROR` |
+| 条件                | 状态码 | 错误码                   |
+| ------------------- | ------ | ------------------------ |
+| 请求为空            | `400`  | `INVALID_REQUEST`        |
+| API key 缺失        | `400`  | `MISSING_API_KEY`        |
+| conversation 不存在 | `404`  | `CONVERSATION_NOT_FOUND` |
+| provider 失败       | `502`  | `MODEL_PROVIDER_ERROR`   |
 
 ### 15.2 流式 Chat
 

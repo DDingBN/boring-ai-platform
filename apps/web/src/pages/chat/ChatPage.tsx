@@ -1,7 +1,6 @@
 import type { ChatMessage } from '@repo/shared';
 import { Button, Card, Empty, Input, List, Space, Typography } from 'antd';
 import { useState } from 'react';
-import type { MenuRoutePageProps } from '../../data/routeRegistry';
 import styles from './ChatPage.module.css';
 
 const { TextArea } = Input;
@@ -24,7 +23,7 @@ function createMessage(role: ChatMessage['role'], content: string): ChatMessage 
     };
 }
 
-export function ChatPage(_props: MenuRoutePageProps) {
+export function ChatPage() {
     const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
     const [inputValue, setInputValue] = useState('');
 

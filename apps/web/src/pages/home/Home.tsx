@@ -1,8 +1,7 @@
 import { Button, Card, Col, Row, Space, Statistic, Tag, Timeline, Typography } from 'antd';
-import type { MenuRoutePageProps } from '../../data/routeRegistry';
 import styles from './Home.module.css';
 
-export function Home(_props: MenuRoutePageProps) {
+export function Home() {
     return (
         <main className={styles.page}>
             <section className={styles.hero}>
