@@ -2,11 +2,13 @@
   "name": "@repo/server",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsup",
+    "start": "node dist/index.js",
     "lint": "eslint src --max-warnings=0",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@repo/ai": "workspace:*",
@@ -16,6 +18,8 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
+    "@types/node": "^22.20.1",
+    "tsup": "^8.5.1",
     "tsx": "^4.20.5",
     "typescript": "^5.9.3"
   }
