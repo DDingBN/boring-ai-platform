@@ -1,5 +1,41 @@
 # 接口设计规范
 
+> 本文定义目标 API 契约，不是已上线接口清单。当前实现只有 `GET /health`；除该接口外，
+> 文中的 `/api/*`、DTO、错误格式、分页、request ID、幂等性和 SSE 均尚未实现。
+
+## 0. 当前接口基线
+
+Server 当前没有 `/api` 基础前缀、JSON body middleware、统一错误处理或 runtime schema。
+
+唯一已注册接口：
+
+```http
+GET /health
+```
+
+当前响应：
+
+```json
+{
+  "ok": true,
+  "graph": {
+    "nodes": [],
+    "edges": []
+  }
+}
+```
+
+这个接口只是进程和 workspace 类型引用的健康占位，尚未采用本文定义的 `ApiSuccess<T>` 包装、
+request ID 或数据库/provider 健康检查。
+
+`apps/server/src/chat/index.ts` 中虽然定义了一个 `POST /` Router，但它未挂载到 Express 应用，
+也没有请求校验，只会返回 `{ "message": "Chat response" }`。因此它不属于当前可访问 API，
+也不符合本文目标 Chat 契约。
+
+当前 `@repo/shared` 只有 TypeScript Chat 占位类型，没有 runtime schema、API error、stream event、
+Conversation 或 Run 契约。实现新接口时应按本文规范演进，具体进度见
+[当前实现状态](../current-status.md)。
+
 ## 1. 目标
 
 本文档定义 Boring AI Platform 的 HTTP API、流式事件、DTO、错误、分页、校验和版本演进规范。
@@ -30,7 +66,7 @@
 
 ## 3. 核心资源
 
-第一阶段核心资源：
+第一阶段目标核心资源：
 
 | 资源           | 含义                        |
 | -------------- | --------------------------- |
@@ -57,7 +93,7 @@
 
 ### 4.1 HTTP API
 
-对外 API 位于 `apps/server/src/routes`。
+目标对外 API 位于 `apps/server/src/routes`。该目录当前尚未创建。
 
 职责：
 
@@ -75,7 +111,7 @@
 
 ### 4.2 Service
 
-业务编排位于 `apps/server/src/services`。
+目标业务编排位于 `apps/server/src/services`。该目录当前尚未创建。
 
 职责：
 
@@ -86,7 +122,7 @@
 
 ### 4.3 Shared Contract
 
-共享契约位于 `packages/shared`。
+共享契约位于 `packages/shared`。以下是下一阶段需要补齐的目标内容：
 
 必须包含：
 
@@ -101,7 +137,7 @@
 
 ## 5. URL 规范
 
-基础前缀：
+目标基础前缀：
 
 ```txt
 /api
@@ -777,7 +813,7 @@ interface RunWorkflowResponse {
 
 早期不在 URL 中加入版本号。
 
-当前：
+首版目标：
 
 ```txt
 /api/chat

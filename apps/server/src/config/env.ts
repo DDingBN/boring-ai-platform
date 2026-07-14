@@ -11,7 +11,7 @@ const DATABASE_PROTOCOLS = new Set(['file:', 'mysql:', 'postgres:', 'postgresql:
 
 type NodeEnvironment = (typeof NODE_ENVS)[number];
 type AiProvider = (typeof AI_PROVIDERS)[number];
-    
+
 export interface ServerConfig {
     databaseUrl?: string;
     deepSeekApiKey?: string;

@@ -1,5 +1,21 @@
 # 运行记录与可观测性
 
+> 本文是目标设计。当前仓库尚未实现 `Run`、`RunStep`、`TraceEvent`、持久化或 Run Inspector；
+> Server 仅在启动时输出监听地址，`GET /health` 也不会创建运行记录。
+
+## 0. 落地状态
+
+| 能力                               | 当前状态 | 计划阶段     |
+| ---------------------------------- | -------- | ------------ |
+| Run/RunStep/TraceEvent shared 契约 | 未实现   | Phase 1      |
+| Chat 创建运行记录                  | 未实现   | Phase 1      |
+| Run Inspector                      | 未实现   | Phase 1      |
+| 运行记录持久化和查询 API           | 未实现   | Phase 2      |
+| SSE 实时事件                       | 未实现   | Phase 3      |
+| RAG/Workflow/Tool/Agent 事件       | 未实现   | 对应功能阶段 |
+
+本文以下字段和事件是后续实现时需要遵守的统一方向，不是现有 API 契约。
+
 ## 1. 为什么提前设计
 
 这个项目的核心不是“得到一次模型回答”，而是理解 AI 应用如何执行。
@@ -123,7 +139,8 @@ Run Inspector 建议展示：
 - raw provider response
 - errors
 
-早期可以从 `/api/chat` 返回 `runId`，再通过 `/api/runs/:id` 获取详情。流式阶段则直接把 trace event 推给前端。
+Phase 1 可以从目标接口 `/api/chat` 返回 `runId`，Phase 2 再通过 `/api/runs/:id` 获取持久化详情。
+Phase 3 的流式接口则直接把 trace event 推给前端。上述接口当前均不存在。
 
 ## 6. 设计约束
 

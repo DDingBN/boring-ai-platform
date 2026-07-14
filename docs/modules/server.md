@@ -1,5 +1,7 @@
 # Server 模块设计
 
+> 当前 Server 只有启动配置和健康检查；本文中的 routes/services、Chat、Run、SSE 与统一错误处理均为目标设计。
+
 ## 1. 模块职责
 
 `apps/server` 是 HTTP API 和服务编排层。它负责把前端请求转换为稳定的业务调用，但不直接实现底层 LLM、Embedding、RAG、Prisma 或 workflow executor 细节。
@@ -15,7 +17,52 @@
 - config and environment loading
 - future auth entry point
 
-## 2. 推荐目录
+## 2. 当前实现
+
+技术栈为 Express 5、TypeScript、tsx 和 tsup，package 使用 ESM。当前入口执行以下操作：
+
+1. 从仓库根目录加载 `.env`（存在时）。
+2. 校验 Server 配置。
+3. 创建 Express 应用。
+4. 注册 `GET /health`。
+5. 监听配置的 host 和 port。
+
+当前健康检查响应：
+
+```json
+{
+  "ok": true,
+  "graph": {
+    "nodes": [],
+    "edges": []
+  }
+}
+```
+
+其中 `graph` 用于验证 `@repo/shared` 的 `WorkflowGraph` workspace 类型引用，不代表已有 Workflow runtime。
+
+当前限制：
+
+- 没有 `express.json()`，请求体 JSON 解析尚未启用。
+- 没有 `/api` 前缀和已挂载的业务 Router。
+- `src/chat/index.ts` 的 `POST /` Router 返回固定文本，但没有在入口注册，外部不可访问。
+- 没有 service、runtime validation、统一错误 middleware、request ID、CORS 或 SSE。
+- `@repo/ai` 和 `@repo/database` 已声明为依赖，但入口尚未调用它们。
+
+配置项如下：
+
+| 变量               | 默认值        | 校验                                       |
+| ------------------ | ------------- | ------------------------------------------ |
+| `NODE_ENV`         | `development` | 仅允许 `development`、`test`、`production` |
+| `SERVER_HOST`      | `127.0.0.1`   | 不允许空白字符                             |
+| `SERVER_PORT`      | `3001`        | 1–65535 的整数                             |
+| `AI_PROVIDER`      | `deepseek`    | 当前只允许 `deepseek`                      |
+| `DEEPSEEK_API_KEY` | 空            | 可选；非空时不允许空白字符                 |
+| `DATABASE_URL`     | 空            | 可选；非空时校验 URL 和数据库协议          |
+
+这里对 provider、API key 和数据库 URL 的处理只是配置校验，不代表对应能力已经接入。
+
+## 3. 目标目录
 
 ```txt
 apps/server/src/
@@ -36,11 +83,12 @@ apps/server/src/
   index.ts
 ```
 
-`index.ts` 只负责创建 app、注册 middleware/routes、启动服务。业务逻辑进入 `services/`。
+上述 `middleware`、`routes` 和 `services` 目录当前尚不存在。完成重构后，`index.ts` 只负责创建 app、
+注册 middleware/routes 和启动服务，业务逻辑进入 `services/`。
 
-## 3. API 设计
+## 4. API 设计
 
-早期优先实现：
+当前只实现 `GET /health`。下一阶段优先实现：
 
 ```txt
 GET  /health
@@ -72,7 +120,7 @@ POST /api/chat/stream
 
 也可以在 `POST /api/chat` 内根据 `stream: true` 切换 SSE，但需要保持响应类型清晰。
 
-## 4. 校验和错误
+## 5. 校验和错误
 
 所有外部请求都应经过 runtime validation。建议把 schema 放在 `packages/shared`，server 直接复用。
 
@@ -96,7 +144,7 @@ interface ApiError {
 
 API key 缺失、provider 失败、请求取消都要返回可理解的错误，避免前端只能显示未知失败。
 
-## 5. 流式响应
+## 6. 流式响应
 
 Chat stream 使用 SSE 时，server 需要处理：
 
@@ -109,7 +157,7 @@ Chat stream 使用 SSE 时，server 需要处理：
 
 SSE 事件格式应复用 `packages/shared` 中的 `StreamEvent`，不要只为 chat 写临时协议。
 
-## 6. 边界约束
+## 7. 边界约束
 
 - server 不直接拼 provider HTTP 请求，交给 `packages/ai`。
 - server 不直接散落 Prisma 查询，交给 `packages/database` repositories。

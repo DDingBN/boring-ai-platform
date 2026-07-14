@@ -1,5 +1,15 @@
 # 开发路线图
 
+> 状态基于 [当前实现状态](./current-status.md)。本文的未完成项是计划，不代表当前已有对应接口或运行时。
+
+## 当前进度
+
+| 阶段                               | 状态   | 说明                                                      |
+| ---------------------------------- | ------ | --------------------------------------------------------- |
+| Phase 0：基础设施收口              | 已完成 | 启动配置、Lint、类型检查与构建链已落地                    |
+| Phase 1：最小 Chat + Run Inspector | 准备中 | 有 Mock Chat 和初版类型，但真实端到端链路尚未开始         |
+| Phase 2–8                          | 未开始 | 尚无持久化、流式响应、RAG、Workflow、Tools 或 Agents 实现 |
+
 ## Phase 0：基础设施收口
 
 目标：让仓库成为可靠的开发基础。
@@ -12,7 +22,14 @@
 - `pnpm typecheck` 通过
 - `pnpm build` 通过
 
-状态：部分完成。
+状态：已完成。
+
+当前实现补充：
+
+- 根目录统一提供 `dev`、`build`、`lint`、`typecheck`、`format` 和 `format:check`。
+- Web 与 Server 默认只监听 `127.0.0.1`，端口和 Server 环境配置会在启动时校验。
+- Server 已切换为 ESM，并通过 tsup 输出 `dist/index.js`。
+- 当前还没有测试命令；测试会从对应功能阶段开始补充。
 
 ## Phase 1：最小 Chat + Run Inspector
 
@@ -40,6 +57,12 @@ web chat input
 - Run Inspector 基础展示
 - API key 缺失错误提示
 
+当前基础与缺口：
+
+- 已有：Web `/chat` 页面、`ChatMessage`/`ChatRequest`/`ChatResponse` 占位类型、Server Chat Router 占位。
+- 未有：Router 挂载、JSON body 解析、目标 DTO/runtime schema、provider、真实 API 调用、Run 模型和 Run Inspector。
+- 注意：现有 Chat Router 返回 `{ message: 'Chat response' }`，且没有注册到 Express 应用，不能作为可用 API。
+
 ## Phase 2：会话和运行记录持久化
 
 目标：保存会话、消息和运行调试信息。
@@ -58,6 +81,8 @@ web chat input
 - `/api/runs/:id`
 - web 加载历史会话和运行详情
 
+状态：未开始。`DATABASE_URL` 目前只做可选格式校验，`@repo/database` 未安装 Prisma，亦未连接数据库。
+
 ## Phase 3：流式响应
 
 目标：让 chat 使用可复用的 SSE 事件协议。
@@ -71,6 +96,8 @@ web chat input
 - message delta 渲染
 - run step 实时更新
 - abort request
+
+状态：未开始。
 
 ## Phase 4：知识库与 RAG
 
@@ -104,6 +131,8 @@ upload document
 - 知识库页面
 - 回答展示 citations 和 retrieved chunks
 
+状态：未开始。当前只有 `KnowledgeType` 联合类型。
+
 ## Phase 5：Workflow Runtime
 
 目标：把 `WorkflowGraph` 从类型变成可执行系统。
@@ -118,6 +147,8 @@ upload document
 - workflow run API
 - executor 单元测试
 
+状态：未开始。当前已有 `WorkflowGraph` 数据结构和节点类型枚举，但没有校验器或执行器。
+
 ## Phase 6：Workflow UI
 
 目标：用可视化方式创建、保存、运行 workflow。
@@ -131,6 +162,8 @@ upload document
 - workflow 保存和加载
 - 从 UI 运行 workflow
 - 运行状态和日志展示
+
+状态：未开始。
 
 ## Phase 7：Tools 与 Agents
 
@@ -149,6 +182,8 @@ upload document
 - tool allowlist
 - 前端展示 tool calls
 
+状态：未开始。
+
 ## Phase 8：质量、样例和文档
 
 目标：让项目更容易维护、演示和继续扩展。
@@ -164,6 +199,8 @@ upload document
 - 常见错误排查
 
 测试不要等到 Phase 8 才开始。Phase 8 的目标是补齐覆盖和演示资料，核心逻辑在对应阶段就应该有基础测试。
+
+状态：未开始。文档会随各阶段实现持续更新，不等到 Phase 8 再集中修订。
 
 ## 暂缓项
 
