@@ -1,11 +1,12 @@
 # 接口设计规范
 
-> 本文定义目标 API 契约，不是已上线接口清单。当前实现只有 `GET /health`；除该接口外，
-> 文中的 `/api/*`、DTO、错误格式、分页、request ID、幂等性和 SSE 均尚未实现。
+> 本文定义目标 API 契约，不是已上线接口清单。当前实现只有 `GET /health` 和 HTTP 基础
+> middleware；文中的 `/api/*`、业务 DTO、分页、幂等性和 SSE 均尚未实现。
 
 ## 0. 当前接口基线
 
-Server 当前没有 `/api` 基础前缀、JSON body middleware、统一错误处理或 runtime schema。
+Server 当前没有 `/api` 基础前缀或 runtime schema；已经注册 JSON body、request ID 和统一错误
+middleware。
 
 唯一已注册接口：
 
@@ -17,16 +18,12 @@ GET /health
 
 ```json
 {
-  "ok": true,
-  "graph": {
-    "nodes": [],
-    "edges": []
-  }
+  "ok": true
 }
 ```
 
-这个接口只是进程和 workspace 类型引用的健康占位，尚未采用本文定义的 `ApiSuccess<T>` 包装、
-request ID 或数据库/provider 健康检查。
+这个接口只表示进程能够响应 HTTP，不检查数据库或 provider，也不采用本文定义的
+`ApiSuccess<T>` 包装。响应会通过 `x-request-id` 返回请求标识。
 
 `apps/server/src/chat/index.ts` 中虽然定义了一个 `POST /` Router，但它未挂载到 Express 应用，
 也没有请求校验，只会返回 `{ "message": "Chat response" }`。因此它不属于当前可访问 API，

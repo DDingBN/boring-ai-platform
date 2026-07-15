@@ -1,6 +1,7 @@
 # Server 模块设计
 
-> 当前 Server 只有启动配置和健康检查；本文中的 routes/services、Chat、Run、SSE 与统一错误处理均为目标设计。
+> 当前 Server 已有启动配置、HTTP 基础中间件和健康检查；本文中的 routes/services、Chat、Run
+> 与 SSE 仍为目标设计。
 
 ## 1. 模块职责
 
@@ -23,30 +24,26 @@
 
 1. 从仓库根目录加载 `.env`（存在时）。
 2. 校验 Server 配置。
-3. 创建 Express 应用。
+3. 通过 `createApp()` 创建 Express 应用并注册基础中间件。
 4. 注册 `GET /health`。
-5. 监听配置的 host 和 port。
+5. 在入口监听配置的 host 和 port。
 
 当前健康检查响应：
 
 ```json
 {
-  "ok": true,
-  "graph": {
-    "nodes": [],
-    "edges": []
-  }
+  "ok": true
 }
 ```
 
-其中 `graph` 用于验证 `@repo/shared` 的 `WorkflowGraph` workspace 类型引用，不代表已有 Workflow runtime。
+每个响应都带有 `x-request-id`。JSON 请求体上限为 `1mb`；错误由末尾中间件转换为包含
+`code`、`message` 和 `requestId` 的 JSON，服务端堆栈不会返回给客户端。
 
 当前限制：
 
-- 没有 `express.json()`，请求体 JSON 解析尚未启用。
 - 没有 `/api` 前缀和已挂载的业务 Router。
 - `src/chat/index.ts` 的 `POST /` Router 返回固定文本，但没有在入口注册，外部不可访问。
-- 没有 service、runtime validation、统一错误 middleware、request ID、CORS 或 SSE。
+- 没有 service、runtime validation、CORS 或 SSE。
 - `@repo/ai` 和 `@repo/database` 已声明为依赖，但入口尚未调用它们。
 
 配置项如下：
@@ -66,10 +63,12 @@
 
 ```txt
 apps/server/src/
+  app.ts
   config/
     env.ts
   middleware/
     error.middleware.ts
+    request-id.middleware.ts
   routes/
     chat.routes.ts
     conversation.routes.ts
@@ -83,8 +82,8 @@ apps/server/src/
   index.ts
 ```
 
-上述 `middleware`、`routes` 和 `services` 目录当前尚不存在。完成重构后，`index.ts` 只负责创建 app、
-注册 middleware/routes 和启动服务，业务逻辑进入 `services/`。
+`app.ts` 和上述两个 middleware 已实现；`routes` 和 `services` 目录仍是后续结构。`index.ts` 只负责
+加载配置和启动服务，后续业务逻辑进入 `services/`。
 
 ## 4. API 设计
 
