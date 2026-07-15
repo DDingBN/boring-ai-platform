@@ -26,10 +26,11 @@
 
 当前实现补充：
 
-- 根目录统一提供 `dev`、`build`、`lint`、`typecheck`、`format` 和 `format:check`。
+- 根目录统一提供 `dev`、`build`、`test`、`lint`、`typecheck`、`format` 和 `format:check`。
 - Web 与 Server 默认只监听 `127.0.0.1`，端口和 Server 环境配置会在启动时校验。
 - Server 已切换为 ESM，并通过 tsup 输出 `dist/index.js`。
-- 当前还没有测试命令；测试会从对应功能阶段开始补充。
+- Server 已建立 `createApp()`、JSON body limit、request ID、统一错误响应和健康检查基线。
+- 当前测试覆盖 Server HTTP 基线；Web、AI、Database 和 Shared 的测试随对应业务阶段补充。
 
 ## Phase 1：最小 Chat + Run Inspector
 
@@ -60,7 +61,8 @@ web chat input
 当前基础与缺口：
 
 - 已有：Web `/chat` 页面、`ChatMessage`/`ChatRequest`/`ChatResponse` 占位类型、Server Chat Router 占位。
-- 未有：Router 挂载、JSON body 解析、目标 DTO/runtime schema、provider、真实 API 调用、Run 模型和 Run Inspector。
+- 未有：Router 挂载、目标 DTO/runtime schema、Provider、Web `/api` 代理/API Client、真实 API
+  调用、Run 模型和 Run Inspector。
 - 注意：现有 Chat Router 返回 `{ message: 'Chat response' }`，且没有注册到 Express 应用，不能作为可用 API。
 
 ## Phase 2：会话和运行记录持久化
