@@ -5,6 +5,7 @@ import { loadEnvFile } from 'node:process';
 const DEFAULT_NODE_ENV = 'development';
 const DEFAULT_SERVER_HOST = '127.0.0.1';
 const DEFAULT_SERVER_PORT = 3001;
+// 这些只读列表同时作为运行时白名单和 TypeScript 联合类型的唯一来源。
 const NODE_ENVS = ['development', 'test', 'production'] as const;
 const AI_PROVIDERS = ['deepseek'] as const;
 const DATABASE_PROTOCOLS = new Set(['file:', 'mysql:', 'postgres:', 'postgresql:']);
@@ -24,6 +25,7 @@ export interface ServerConfig {
 function loadProjectEnvFile(): void {
     let directory = process.cwd();
 
+    // 服务可能从 monorepo 内任意目录启动，因此向上定位工作区根目录，而不是依赖当前目录。
     while (!existsSync(resolve(directory, 'pnpm-workspace.yaml'))) {
         const parentDirectory = resolve(directory, '..');
 
@@ -37,6 +39,7 @@ function loadProjectEnvFile(): void {
     const envFile = resolve(directory, '.env');
 
     if (existsSync(envFile)) {
+        // loadEnvFile 不会覆盖进程中已有的变量，部署环境显式注入的配置仍然优先。
         loadEnvFile(envFile);
     }
 }
@@ -80,6 +83,7 @@ function readHost(value: string | undefined): string {
 }
 
 function readOptionalSecret(value: string | undefined, variableName: string): string | undefined {
+    // 可选只表示配置层允许缺省；真正使用该能力时仍应由调用方检查是否已配置。
     if (value === undefined || value === '') {
         return undefined;
     }
@@ -128,6 +132,7 @@ function readDatabaseUrl(value: string | undefined): string | undefined {
 export function loadServerConfig(): ServerConfig {
     loadProjectEnvFile();
 
+    // 集中解析并校验，确保服务在启动阶段失败，而不是带着无效配置继续运行。
     return {
         databaseUrl: readDatabaseUrl(process.env.DATABASE_URL),
         deepSeekApiKey: readOptionalSecret(process.env.DEEPSEEK_API_KEY, 'DEEPSEEK_API_KEY'),
