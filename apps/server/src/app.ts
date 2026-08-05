@@ -1,6 +1,7 @@
 import express from 'express';
 import { errorMiddleware } from './middleware/error.middleware';
 import { requestIdMiddleware } from './middleware/request-id.middleware';
+import { chatRouter } from './chat/chat.router';
 
 const JSON_BODY_LIMIT = '1mb';
 
@@ -14,6 +15,8 @@ export function createApp(): express.Express {
     app.get('/health', (_req, res) => {
         res.json({ ok: true });
     });
+
+    app.use('/api/chat', chatRouter);
 
     app.use((_req, _res, next) => {
         const error = new Error('Route not found.') as Error & { status: number };
