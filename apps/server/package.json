@@ -12,8 +12,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@repo/ai": "workspace:*",
-    "@repo/database": "workspace:*",
     "express": "^5.1.0"
   },
   "devDependencies": {

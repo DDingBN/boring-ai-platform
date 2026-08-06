@@ -12,5 +12,4 @@ export default defineConfig({
     sourcemap: true,
     minify: false,
     dts: false,
-    noExternal: ['@repo/ai', '@repo/database'],
 });
