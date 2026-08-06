@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.2.3",
-    "@repo/shared": "workspace:*",
     "antd": "^6.4.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

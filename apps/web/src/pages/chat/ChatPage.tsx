@@ -1,9 +1,15 @@
-import type { ChatMessage } from '@repo/shared';
 import { Button, Card, Empty, Input, List, Space, Typography } from 'antd';
 import { useState } from 'react';
 import styles from './ChatPage.module.css';
 
 const { TextArea } = Input;
+
+interface ChatMessage {
+    id: string;
+    role: 'user' | 'assistant';
+    content: string;
+    createdAt: string;
+}
 
 const initialMessages: ChatMessage[] = [
     {

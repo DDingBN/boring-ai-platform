@@ -31,8 +31,9 @@
 `src/data/menuData.ts`，页面组件注册位于 `src/data/routeRegistry.tsx`；为菜单项增加页面时，
 需要同步维护这两处。菜单权限字段和过滤逻辑已预留，但应用还没有认证或权限上下文。
 
-Vite 从仓库根目录读取 `.env`：`WEB_HOST` 默认 `127.0.0.1`，`WEB_PORT` 默认 `5173`。
-当前没有 `/api` proxy、`src/api` 目录、请求库或 SSE parser，因此 Web 与 Server 尚未连通。
+Vite 从仓库根目录读取 `.env`：`WEB_HOST` 默认 `127.0.0.1`，`WEB_PORT` 默认 `5173`，并将
+`/api` 代理到默认 Server 地址。当前没有 `src/api` 目录、真实请求或 SSE parser，因此 Chat 页面
+仍未与 Server 连通。
 
 ## 3. 页面优先级
 
@@ -87,6 +88,10 @@ apps/web/src/api/
 - API error
 - SSE stream parsing
 - request abort
+
+前端按照接口文档维护自己的请求、响应和 UI 状态类型，不导入 Server 的 route、schema、业务模型
+或数据库实体。是否为简单响应声明 TypeScript 类型由前端实际复杂度决定，不建立跨端 Shared
+package。Server 返回结构变化时，通过接口文档、联调和 API 集成测试协调。
 
 早期可以先用 React 本地状态。等会话、运行记录、知识库页面形成共享状态后，再考虑引入专门的数据请求库。
 

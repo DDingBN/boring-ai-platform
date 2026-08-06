@@ -30,11 +30,11 @@
 - Web 与 Server 默认只监听 `127.0.0.1`，端口和 Server 环境配置会在启动时校验。
 - Server 已切换为 ESM，并通过 tsup 输出 `dist/index.js`。
 - Server 已建立 `createApp()`、JSON body limit、request ID、统一错误响应和健康检查基线。
-- 当前测试覆盖 Server HTTP 基线；Web、AI、Database 和 Shared 的测试随对应业务阶段补充。
+- 当前测试覆盖 Server HTTP 基线；Web、AI 和 Database 的测试随对应业务阶段补充。
 
 ## Phase 1：最小 Chat + Run Inspector
 
-目标：打通 frontend、server、shared、ai runtime，并开始记录运行过程。
+目标：打通 frontend、server 和 AI runtime，并开始记录运行过程。
 
 链路：
 
@@ -49,8 +49,9 @@ web chat input
 
 交付物：
 
-- chat request/response/shared schema
-- API error 类型
+- Chat HTTP 接口文档
+- Server-local request runtime schema 和 API error 映射
+- Web-local API Client 和页面状态类型
 - LLM provider interface
 - OpenAI-compatible provider
 - `POST /api/chat`
@@ -60,10 +61,10 @@ web chat input
 
 当前基础与缺口：
 
-- 已有：Web `/chat` 页面、`ChatMessage`/`ChatRequest`/`ChatResponse` 占位类型、Server Chat Router 占位。
-- 未有：Router 挂载、目标 DTO/runtime schema、Provider、Web `/api` 代理/API Client、真实 API
-  调用、Run 模型和 Run Inspector。
-- 注意：现有 Chat Router 返回 `{ message: 'Chat response' }`，且没有注册到 Express 应用，不能作为可用 API。
+- 已有：Web `/chat` Mock 页面、已挂载的 Server 回声 Chat Router、Vite `/api` 开发代理。
+- 未有：Server runtime schema、Provider、Web API Client 和真实调用、Run 模型与 Run Inspector。
+- 前后端不共享 TypeScript DTO；接口字段由文档约定，Server 校验请求，Web 只维护页面实际需要的
+  本地类型。
 
 ## Phase 2：会话和运行记录持久化
 
@@ -91,7 +92,7 @@ web chat input
 
 交付物：
 
-- `StreamEvent` schema
+- Server 维护并在接口文档中记录的 StreamEvent 协议
 - `POST /api/chat/stream`
 - provider streaming adapter
 - 前端 SSE parser

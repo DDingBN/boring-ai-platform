@@ -20,8 +20,8 @@
 
 ## 2. 当前实现
 
-`@repo/ai` 当前仅依赖 `@repo/shared`，没有安装任何模型 provider SDK，也没有调用 shared 中的类型。
-`src/index.ts` 只导出：
+`@repo/ai` 当前没有其他 workspace 依赖，也没有安装任何模型 provider SDK。它维护自己的
+Provider 输入类型，`src/index.ts` 只导出：
 
 ```ts
 export interface AiModelConfig {

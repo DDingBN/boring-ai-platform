@@ -2,7 +2,7 @@
 
 本文记录仓库当前已经落地的能力，用来区分“可运行实现”和其他文档中的“目标设计”。
 
-> 文档基线：2026-07-15，当前仓库版本 `0.1.0`。
+> 文档基线：2026-08-06，当前仓库版本 `0.1.0`。
 
 ## 1. 当前结论
 
@@ -15,12 +15,13 @@
 - 统一的根目录 `.env` 加载和启动配置校验。
 - Web 应用布局、菜单、路由、首页、Mock Chat、登录页和错误页。
 - Server 的可测试 `createApp()`、HTTP 基础中间件和 `GET /health` 健康检查。
-- Shared、AI、Database 三个 package 的最小类型占位。
+- AI、Database 两个 package 的最小类型占位。
+- 已挂载的 `POST /api/chat` 回声 Router 和 Vite `/api` 开发代理。
 
 尚未具备：
 
-- Web 到 Server 的 API 连接和开发代理。
-- 已挂载的 Chat API。
+- Web Chat 到 Server 的 API Client 和真实调用。
+- Chat request runtime schema 和业务 service。
 - 真实 LLM provider 调用或流式响应。
 - 会话、消息、运行记录持久化。
 - Prisma schema、数据库 client、migration 或 repository。
@@ -48,10 +49,11 @@
 
 默认地址：`http://127.0.0.1:3001`
 
-当前唯一已注册接口：
+当前已注册接口：
 
 ```http
 GET /health
+POST /api/chat
 ```
 
 响应示例：
@@ -65,8 +67,8 @@ GET /health
 Server 对 JSON 请求体设置了 `1mb` 上限。每个响应都会返回 `x-request-id`，错误响应使用统一
 JSON 结构且不包含服务端堆栈。
 
-`apps/server/src/chat/index.ts` 中存在一个返回固定文本的 Router，但它没有在应用入口挂载，
-因此目前不存在可访问的 Chat HTTP 接口。
+`POST /api/chat` 当前读取最后一条 user message 并返回固定回声消息。它已挂载，但没有 runtime
+schema、AI provider、持久化或对应接口测试，不能视为真实 Chat 闭环。
 
 ## 3. 环境变量
 
@@ -88,14 +90,13 @@ Web 和 Server 都从仓库根目录读取 `.env`。没有 `.env` 时也可以�
 
 ## 4. Package 现状
 
-| Package          | 当前导出                                                    | 当前限制                                  |
-| ---------------- | ----------------------------------------------------------- | ----------------------------------------- |
-| `@repo/shared`   | `BaseEntity`、Chat 类型、Workflow 图类型、`KnowledgeType`   | 只有 TypeScript 类型，没有 runtime schema |
-| `@repo/ai`       | `AiModelConfig`、`AiTextMessage`、`AiTextGenerationRequest` | 没有 provider、生成函数或外部 AI SDK      |
-| `@repo/database` | `DatabaseConfig`、`DatabaseHealth`                          | 没有 ORM、client、schema 或持久化实现     |
+| Package          | 当前导出                                                    | 当前限制                              |
+| ---------------- | ----------------------------------------------------------- | ------------------------------------- |
+| `@repo/ai`       | `AiModelConfig`、`AiTextMessage`、`AiTextGenerationRequest` | 没有 provider、生成函数或外部 AI SDK  |
+| `@repo/database` | `DatabaseConfig`、`DatabaseHealth`                          | 没有 ORM、client、schema 或持久化实现 |
 
-当前 `ChatRequest` 直接使用完整的 `ChatMessage[]`；目标契约中 Input DTO 与持久化消息的拆分尚未实现。
-当前 `WorkflowGraph` 已定义六种节点类型，但只是图数据结构，不能执行。
+仓库不设置跨端 Shared package。Web 展示类型、Server HTTP 类型、AI Provider 类型和后续数据库实体
+分别由所属模块维护；接口字段通过 API 文档约定，Server 在 HTTP 边界进行 runtime validation。
 
 ## 5. 开发命令
 
@@ -121,5 +122,5 @@ pnpm --filter @repo/server dev
 
 ## 6. 下一步
 
-当前应继续完成 [开发路线图](./roadmap.md) 的 Phase 1：先确定并实现 Shared Chat 契约，
-再挂载 Server Chat API、接入 AI provider、记录 Run，最后让 Web Chat 使用真实接口并展示运行信息。
+当前应继续完成 [开发路线图](./roadmap.md) 的 Phase 1：先确定 Chat HTTP 文档并在 Server 实现
+runtime schema，再接入 AI provider、记录 Run，最后让 Web Chat 使用真实接口并展示运行信息。

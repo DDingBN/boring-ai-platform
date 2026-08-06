@@ -132,4 +132,4 @@ repositories 应提供业务友好的函数，而不是泄露 ORM 细节。
 - `createDocumentChunks`
 - `searchRelevantChunks`
 
-返回值应映射为 shared 中定义的 response DTO 或 server 内部 service model。
+返回值应映射为 Server 内部 service model，不直接作为 HTTP response，也不与 Web 共享数据库实体。

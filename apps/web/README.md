@@ -112,13 +112,12 @@ apps/web/
 
 ## 8. 接入 Server API
 
-目前 Web 和 Server 尚未连通。开始真实业务接口时，建议同时完成：
+Vite 已配置 `/api` 开发代理，但 Chat 页面尚未调用 Server。开始真实业务接口时，建议同时完成：
 
-1. 在 `vite.config.ts` 中配置本地 `/api` 代理。
-2. 创建 `src/api/`，集中处理基础 URL、JSON、错误响应和 requestId。
-3. 从 `@repo/shared` 复用请求/响应契约。
-4. 页面只调用 API 函数，不散落重复的 `fetch()` 和错误解析逻辑。
-5. 为成功、校验失败、Server 错误和加载状态添加测试。
+1. 创建 `src/api/`，集中处理基础 URL、JSON、错误响应和 requestId。
+2. 按接口文档在 Web 内维护真正需要的请求、响应和 UI 状态类型。
+3. 页面只调用 API 函数，不散落重复的 `fetch()` 和错误解析逻辑。
+4. 为成功、校验失败、Server 错误和加载状态添加测试。
 
 不要在前端代码中读取 `DEEPSEEK_API_KEY`、`DATABASE_URL` 或其他服务端秘密。
 

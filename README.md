@@ -109,7 +109,7 @@ curl -i http://127.0.0.1:3001/health
 在浏览器访问 `http://127.0.0.1:5173`，应进入首页；访问 `/chat` 可以看到当前的本地 Mock
 对话页面。
 
-Web 和 Server 目前尚未通过 `/api` 代理或 API Client 连通，因此 Mock Chat 不会调用后端。
+Vite 已配置本地 `/api` 代理，但 Web 还没有 API Client，因此 Mock Chat 不会调用后端。
 
 ## 6. 常用命令
 
@@ -166,7 +166,6 @@ apps/
   web/        React + Vite 前端
   server/     Express HTTP API
 packages/
-  shared/     Web 与 Server 共享的 TypeScript 契约
   ai/         AI Runtime 边界，目前只有类型占位
   database/   数据访问边界，目前只有类型占位
 docs/         当前状态、模块设计、API 规范和路线图
@@ -175,10 +174,14 @@ docs/         当前状态、模块设计、API 规范和路线图
 模块边界：
 
 - `apps/web` 负责页面、交互和 API 调用，不读取服务端密钥。
-- `apps/server` 负责 HTTP、请求校验、业务编排和安全错误响应。
-- `packages/shared` 只存放跨端契约，不暴露 Express、数据库或 Provider SDK 类型。
+- `apps/web` 在自己的 API 模块中按接口文档维护需要的请求和响应类型，不依赖 Server 内部类型。
+- `apps/server` 拥有 HTTP 契约、运行时请求校验、业务编排和安全错误响应。
 - `packages/ai` 承载模型、Embedding、RAG、Tools 和 Workflow 执行能力。
 - `packages/database` 承载 schema、client 和 repositories；当前尚未接入 Prisma。
+
+Web 和 Server 即使位于同一仓库，也保持前后端分离边界，只通过 HTTP JSON 协议协作。接口结构
+记录在文档中；Server 负责校验不可信输入，前端展示状态、后端业务模型、数据库实体和 Provider
+类型分别留在所属模块，不建立跨端共享类型 package。
 
 新增 Server 业务接口时，将 Router 注册在 `createApp()` 的 404 和错误中间件之前，并把业务
 逻辑放入 service 或对应 package。详细约束见 [Server 模块设计](./docs/modules/server.md)。
@@ -197,8 +200,8 @@ docs/         当前状态、模块设计、API 规范和路线图
 
 ### Web 页面能打开，但请求不到 Server
 
-当前 Web 仍是 Mock 界面，尚未配置 `/api` 代理和真实 API Client。这是下一阶段业务开发内容，
-不是本地安装失败。
+当前 Web 仍是 Mock 界面。Vite 已配置默认指向 `http://127.0.0.1:3001` 的 `/api` 代理，但真实
+API Client 尚未实现。这是下一阶段业务开发内容，不是本地安装失败。
 
 ### 修改代码后检查未通过
 
@@ -212,6 +215,5 @@ docs/         当前状态、模块设计、API 规范和路线图
 - [接口设计规范](./docs/api/interface-design-spec.md)
 - [Web 模块设计](./docs/modules/web.md)
 - [Server 模块设计](./docs/modules/server.md)
-- [Shared 契约设计](./docs/modules/shared.md)
 - [AI Runtime 模块设计](./docs/modules/ai.md)
 - [Database 模块设计](./docs/modules/database.md)

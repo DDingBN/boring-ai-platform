@@ -1,7 +1,7 @@
 # Server 模块设计
 
-> 当前 Server 已有启动配置、HTTP 基础中间件和健康检查；本文中的 routes/services、Chat、Run
-> 与 SSE 仍为目标设计。
+> 当前 Server 已有启动配置、HTTP 基础中间件、健康检查和 Chat 回声 Router；本文中的
+> services、真实模型调用、Run 与 SSE 仍为目标设计。
 
 ## 1. 模块职责
 
@@ -25,7 +25,7 @@
 1. 从仓库根目录加载 `.env`（存在时）。
 2. 校验 Server 配置。
 3. 通过 `createApp()` 创建 Express 应用并注册基础中间件。
-4. 注册 `GET /health`。
+4. 注册 `GET /health` 和 `POST /api/chat` 回声 Router。
 5. 在入口监听配置的 host 和 port。
 
 当前健康检查响应：
@@ -41,8 +41,7 @@
 
 当前限制：
 
-- 没有 `/api` 前缀和已挂载的业务 Router。
-- `src/chat/index.ts` 的 `POST /` Router 返回固定文本，但没有在入口注册，外部不可访问。
+- `POST /api/chat` 只返回固定回声，不调用 AI provider。
 - 没有 service、runtime validation、CORS 或 SSE。
 - `@repo/ai` 和 `@repo/database` 已声明为依赖，但入口尚未调用它们。
 
@@ -82,12 +81,12 @@ apps/server/src/
   index.ts
 ```
 
-`app.ts` 和上述两个 middleware 已实现；`routes` 和 `services` 目录仍是后续结构。`index.ts` 只负责
-加载配置和启动服务，后续业务逻辑进入 `services/`。
+`app.ts`、上述两个 middleware 和 `src/chat/chat.router.ts` 已实现；`routes` 和 `services` 目录仍是
+后续结构。`index.ts` 只负责加载配置和启动服务，后续业务逻辑进入 `services/`。
 
 ## 4. API 设计
 
-当前只实现 `GET /health`。下一阶段优先实现：
+当前实现 `GET /health` 和一个回声版 `POST /api/chat`。下一阶段优先完成：
 
 ```txt
 GET  /health
@@ -121,7 +120,8 @@ POST /api/chat/stream
 
 ## 5. 校验和错误
 
-所有外部请求都应经过 runtime validation。建议把 schema 放在 `packages/shared`，server 直接复用。
+所有外部请求都应经过 runtime validation。Schema 由 Server 在对应业务模块中维护，例如
+`src/chat/chat.schema.ts`；它保护的是 HTTP 边界，不要求 Web 导入同一个 TypeScript 类型。
 
 统一错误格式：
 
@@ -154,7 +154,8 @@ Chat stream 使用 SSE 时，server 需要处理：
 - final completion event
 - run step 写入
 
-SSE 事件格式应复用 `packages/shared` 中的 `StreamEvent`，不要只为 chat 写临时协议。
+SSE 事件格式由 Server 维护并写入接口文档。Web 按文档实现本地 parser 和展示状态，不直接依赖
+Server 内部事件类型。
 
 ## 7. 边界约束
 
@@ -162,3 +163,4 @@ SSE 事件格式应复用 `packages/shared` 中的 `StreamEvent`，不要只为 
 - server 不直接散落 Prisma 查询，交给 `packages/database` repositories。
 - server 可以组合多个 package，但不承载底层实现。
 - server 的服务函数应便于 API 测试和 mock。
+- Web、Server、数据库和 Provider 各自维护内部类型；跨端只传输文档约定的 HTTP JSON。

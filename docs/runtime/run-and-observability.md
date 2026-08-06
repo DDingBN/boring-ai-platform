@@ -7,7 +7,7 @@
 
 | 能力                               | 当前状态 | 计划阶段     |
 | ---------------------------------- | -------- | ------------ |
-| Run/RunStep/TraceEvent shared 契约 | 未实现   | Phase 1      |
+| Run/RunStep/TraceEvent Server 模型 | 未实现   | Phase 1      |
 | Chat 创建运行记录                  | 未实现   | Phase 1      |
 | Run Inspector                      | 未实现   | Phase 1      |
 | 运行记录持久化和查询 API           | 未实现   | Phase 2      |

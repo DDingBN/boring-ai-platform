@@ -43,9 +43,6 @@ importers:
       '@repo/database':
         specifier: workspace:*
         version: link:../../packages/database
-      '@repo/shared':
-        specifier: workspace:*
-        version: link:../../packages/shared
       express:
         specifier: ^5.1.0
         version: 5.2.1
@@ -71,9 +68,6 @@ importers:
       '@ant-design/icons':
         specifier: ^6.2.3
         version: 6.2.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@repo/shared':
-        specifier: workspace:*
-        version: link:../../packages/shared
       antd:
         specifier: ^6.4.2
         version: 6.4.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -103,15 +97,9 @@ importers:
         specifier: 8.0.5
         version: 8.0.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)(@types/node@24.12.0)(esbuild@0.27.4)(tsx@4.21.0)
 
-  packages/ai:
-    dependencies:
-      '@repo/shared':
-        specifier: workspace:*
-        version: link:../shared
+  packages/ai: {}
 
   packages/database: {}
-
-  packages/shared: {}
 
 packages:
   '@ant-design/colors@8.0.1':

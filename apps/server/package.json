@@ -14,7 +14,6 @@
   "dependencies": {
     "@repo/ai": "workspace:*",
     "@repo/database": "workspace:*",
-    "@repo/shared": "workspace:*",
     "express": "^5.1.0"
   },
   "devDependencies": {

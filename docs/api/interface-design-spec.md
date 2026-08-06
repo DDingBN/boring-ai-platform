@@ -1,17 +1,18 @@
 # 接口设计规范
 
-> 本文定义目标 API 契约，不是已上线接口清单。当前实现只有 `GET /health` 和 HTTP 基础
-> middleware；文中的 `/api/*`、业务 DTO、分页、幂等性和 SSE 均尚未实现。
+> 本文定义目标 API 契约，不是已上线接口清单。当前实现有 `GET /health`、回声版
+> `POST /api/chat` 和 HTTP 基础 middleware；其余业务接口、分页、幂等性和 SSE 尚未实现。
 
 ## 0. 当前接口基线
 
-Server 当前没有 `/api` 基础前缀或 runtime schema；已经注册 JSON body、request ID 和统一错误
+Server 已挂载 `/api/chat`，但尚无 runtime schema；已经注册 JSON body、request ID 和统一错误
 middleware。
 
-唯一已注册接口：
+当前已注册接口：
 
 ```http
 GET /health
+POST /api/chat
 ```
 
 当前响应：
@@ -25,12 +26,8 @@ GET /health
 这个接口只表示进程能够响应 HTTP，不检查数据库或 provider，也不采用本文定义的
 `ApiSuccess<T>` 包装。响应会通过 `x-request-id` 返回请求标识。
 
-`apps/server/src/chat/index.ts` 中虽然定义了一个 `POST /` Router，但它未挂载到 Express 应用，
-也没有请求校验，只会返回 `{ "message": "Chat response" }`。因此它不属于当前可访问 API，
-也不符合本文目标 Chat 契约。
-
-当前 `@repo/shared` 只有 TypeScript Chat 占位类型，没有 runtime schema、API error、stream event、
-Conversation 或 Run 契约。实现新接口时应按本文规范演进，具体进度见
+`POST /api/chat` 当前只读取最后一条 user message 并返回固定回声。它没有请求 schema、service、
+AI provider 或持久化，不符合本文目标 Chat 契约。具体进度见
 [当前实现状态](../current-status.md)。
 
 ## 1. 目标
@@ -39,14 +36,15 @@ Conversation 或 Run 契约。实现新接口时应按本文规范演进，具�
 
 接口设计目标：
 
-- 前端、server、shared、ai、database 边界清晰。
+- 前端、Server、AI runtime 和 Database 边界清晰。
 - 所有 AI 调用都能关联运行记录。
 - 普通响应和流式响应使用同一套业务语义。
-- API 契约可以被类型系统、runtime schema、测试和文档复用。
+- API 契约由文档明确，Server 使用 runtime schema 强制校验，并由接口测试验证。
 
 ## 2. 设计顺序
 
-设计任何新接口时，必须按以下顺序：
+设计新接口时，优先先明确用户动作、请求、响应和错误，再按实际需要补充资源、持久化与运行记录。
+下面是检查清单，不要求为一个简单接口预先完成所有抽象：
 
 1. 定义用户动作。
 2. 定义资源模型。
@@ -57,9 +55,7 @@ Conversation 或 Run 契约。实现新接口时应按本文规范演进，具�
 7. 定义权限和敏感字段。
 8. 定义持久化行为。
 9. 定义测试用例。
-10. 再实现 HTTP route。
-
-禁止从 controller 或 route 直接开始写接口。
+10. 实现 HTTP route。
 
 ## 3. 核心资源
 
@@ -117,20 +113,15 @@ Conversation 或 Run 契约。实现新接口时应按本文规范演进，具�
 - 处理业务错误。
 - 处理事务边界。
 
-### 4.3 Shared Contract
+### 4.3 前后端契约边界
 
-共享契约位于 `packages/shared`。以下是下一阶段需要补齐的目标内容：
+Web 和 Server 不共享业务 TypeScript 类型。HTTP request、response、error 和 SSE event 的字段以
+本文档为约定：
 
-必须包含：
-
-- TypeScript type。
-- runtime schema。
-- request DTO。
-- response DTO。
-- stream event DTO。
-- API error DTO。
-
-禁止把 Express、Prisma、LangChain、LangGraph、provider SDK 类型暴露到 shared。
+- Server 在对应业务模块中维护 request runtime schema 和 response shaping。
+- Web 在自己的 API/Page 模块中维护实际需要的本地类型，也可以在简单场景依赖类型推断。
+- Server 业务模型、数据库实体和 Provider SDK 类型不跨边界暴露。
+- 接口变更同时更新文档和接口测试；当调用方明显增多时，再考虑从 OpenAPI 自动生成客户端。
 
 ## 5. URL 规范
 
@@ -345,15 +336,9 @@ interface ChatRequest {
 ```ts
 interface ChatRequest {
   conversationId?: string;
-  messages: ChatInputMessage[];
+  message: string;
   model?: string;
   temperature?: number;
-  stream?: boolean;
-}
-
-interface ChatInputMessage {
-  role: 'system' | 'user' | 'assistant';
-  content: string;
 }
 ```
 
@@ -364,25 +349,19 @@ interface ChatInputMessage {
 示例：
 
 ```ts
-export const chatInputMessageSchema = z.object({
-  role: z.enum(['system', 'user', 'assistant']),
-  content: z.string().min(1).max(20000),
-});
-
 export const chatRequestSchema = z.object({
   conversationId: z.string().optional(),
-  messages: z.array(chatInputMessageSchema).min(1),
+  message: z.string().trim().min(1).max(20000),
   model: z.string().optional(),
   temperature: z.number().min(0).max(2).optional(),
-  stream: z.boolean().optional(),
 });
 
 export type ChatRequest = z.infer<typeof chatRequestSchema>;
 ```
 
-server 必须使用 schema 校验 `body`、`params`、`query`。
-
-web 可以使用 schema 校验响应和 stream event。
+Schema 放在 `apps/server` 的对应业务模块中。Server 必须使用它校验不可信的 `body`、`params`
+和 `query`。Web 不导入这个 schema；前端按接口文档发送请求，是否为响应增加本地类型或运行时
+校验由页面复杂度和风险决定。
 
 ## 10. 分页、排序、过滤
 
@@ -579,10 +558,9 @@ POST /api/chat
 ```ts
 interface ChatRequest {
   conversationId?: string;
-  messages: ChatInputMessage[];
+  message: string;
   model?: string;
   temperature?: number;
-  stream?: false;
 }
 ```
 
@@ -624,9 +602,8 @@ POST /api/chat/stream
 请求：
 
 ```ts
-interface ChatStreamRequest extends ChatRequest {
-  stream: true;
-}
+Chat stream 使用与非流式接口相同的 JSON 请求字段，由不同 URL 明确响应模式，不再额外传
+`stream: true`。
 ```
 
 事件顺序：
