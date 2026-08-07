@@ -1,11 +1,4 @@
-import type { BreadcrumbProps } from 'antd';
-
-export type RouteMeta = {
-    title: string;
-    breadcrumbItems: BreadcrumbProps['items'];
-};
-
-export const routeMeta: Record<string, RouteMeta> = {
+export const routeMeta = {
     '/403': {
         title: '403',
         breadcrumbItems: [{ title: '首页' }, { title: '403' }],
@@ -20,6 +13,6 @@ export const routeMeta: Record<string, RouteMeta> = {
     },
 };
 
-export function getRouteMeta(pathname: string) {
+export function getRouteMeta(pathname) {
     return routeMeta[pathname];
 }

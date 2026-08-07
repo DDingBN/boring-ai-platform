@@ -1,14 +1,3 @@
-export type MenuIconName = 'home' | 'chat';
-
-export type MenuDataItem = {
-    key: string;
-    label: string;
-    icon?: MenuIconName;
-    path?: string;
-    requiredPermissions?: string[];
-    children?: MenuDataItem[];
-};
-
 export const menuData = [
     {
         key: 'home',
@@ -22,11 +11,11 @@ export const menuData = [
         icon: 'chat',
         path: '/chat',
     },
-] satisfies MenuDataItem[];
+];
 
 export const defaultMenuPath = '/home';
 
-export function flattenMenuItems(items: MenuDataItem[] = menuData): MenuDataItem[] {
+export function flattenMenuItems(items = menuData) {
     return items.flatMap((item) => {
         if (!item.children?.length) {
             return [item];
@@ -36,11 +25,11 @@ export function flattenMenuItems(items: MenuDataItem[] = menuData): MenuDataItem
     });
 }
 
-export function getMenuItemByPath(pathname: string, items: MenuDataItem[] = menuData) {
+export function getMenuItemByPath(pathname, items = menuData) {
     return flattenMenuItems(items).find((item) => item.path === pathname);
 }
 
-export function getMenuPathKeys(pathname: string, items: MenuDataItem[] = menuData): string[] {
+export function getMenuPathKeys(pathname, items = menuData) {
     for (const item of items) {
         if (item.path === pathname) {
             return [item.key];
@@ -58,10 +47,9 @@ export function getMenuPathKeys(pathname: string, items: MenuDataItem[] = menuDa
     return [];
 }
 
-export function getBreadcrumbItems(pathname: string, items: MenuDataItem[] = menuData) {
+export function getBreadcrumbItems(pathname, items = menuData) {
     const menuPathKeys = getMenuPathKeys(pathname, items);
     const breadcrumbItems = [];
-
     let currentItems = items;
 
     for (const key of menuPathKeys) {
@@ -78,6 +66,6 @@ export function getBreadcrumbItems(pathname: string, items: MenuDataItem[] = men
     return breadcrumbItems;
 }
 
-export function getMenuLeafItems(items: MenuDataItem[] = menuData): MenuDataItem[] {
+export function getMenuLeafItems(items = menuData) {
     return flattenMenuItems(items).filter((item) => Boolean(item.path));
 }

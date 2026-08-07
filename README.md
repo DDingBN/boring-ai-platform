@@ -1,11 +1,11 @@
 # Boring AI Platform
 
-Boring AI Platform 是一个正在开发的 AI 应用练习项目。当前仓库提供 React Web、Express
+Boring AI Platform 是一个正在开发的 AI 应用练习项目。当前仓库提供 Vue Web、Express
 Server 和基础工程化；真实模型调用、消息持久化和流式输出尚未实现。
 
 ## 技术栈
 
-- Web：React 19、Vite 8、React Router 7、Ant Design 6
+- Web：Vue 3、Vite 8、Vue Router 4、Ant Design Vue 4、JavaScript
 - Server：Node.js 22、Express 5、Zod 4、TypeScript
 - Workspace：pnpm + Turborepo
 
@@ -75,13 +75,14 @@ Vite 已将 `/api` 代理到默认 Server 地址。当前 `/chat` 页面仍使�
 
 ```text
 apps/
-  web/       React 前端
+  web/       Vue 3 前端
   server/    Express API
 docs/
   api.md     当前已实现接口
 ```
 
-Web 和 Server 保持前后端边界，只通过 HTTP JSON 协作，不共享业务 TypeScript 类型。
+Web 和 Server 保持前后端边界，只通过 HTTP JSON 协作；Web 使用 JavaScript，Server 使用
+TypeScript。
 
 ## 检查命令
 

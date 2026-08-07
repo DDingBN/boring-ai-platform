@@ -1,12 +1,12 @@
 import { fileURLToPath } from 'node:url';
 import { defineConfig, loadEnv } from 'vite';
-import react from '@vitejs/plugin-react';
+import vue from '@vitejs/plugin-vue';
 
 const DEFAULT_WEB_HOST = '127.0.0.1';
 const DEFAULT_WEB_PORT = 5173;
 const projectRoot = fileURLToPath(new URL('../..', import.meta.url));
 
-function readPort(value: string | undefined): number {
+function readPort(value) {
     if (value === undefined || value === '') {
         return DEFAULT_WEB_PORT;
     }
@@ -24,7 +24,7 @@ function readPort(value: string | undefined): number {
     return port;
 }
 
-function readHost(value: string | undefined): string {
+function readHost(value) {
     const host = value?.trim() || DEFAULT_WEB_HOST;
 
     if (/\s/.test(host)) {
@@ -42,7 +42,7 @@ export default defineConfig(({ mode }) => {
 
     return {
         envDir: projectRoot,
-        plugins: [react()],
+        plugins: [vue()],
         preview: {
             host,
         },
