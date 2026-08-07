@@ -6,7 +6,7 @@ Server 和基础工程化；真实模型调用、消息持久化和流式输出�
 ## 技术栈
 
 - Web：React 19、Vite 8、React Router 7、Ant Design 6
-- Server：Node.js 22、Express 5、TypeScript
+- Server：Node.js 22、Express 5、Zod 4、TypeScript
 - Workspace：pnpm + Turborepo
 
 ## 环境要求
@@ -99,7 +99,6 @@ Chat 业务行为。
 ## 当前限制
 
 - Chat 页面与 Server 未连通。
-- Chat Server 接口没有完整 runtime validation。
 - 没有真实 LLM provider。
 - 没有数据库、会话或运行记录。
 - 没有流式输出和请求取消。

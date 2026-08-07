@@ -84,3 +84,50 @@ test('rejects JSON bodies larger than the configured limit', async () => {
         'Request body is too large.',
     );
 });
+
+test('accepts a valid chat request', async () => {
+    const response = await request(createApp(), '/api/chat', {
+        body: JSON.stringify({
+            messages: [{ role: 'user', content: ' 你好 ' }],
+        }),
+        headers: { 'content-type': 'application/json' },
+        method: 'POST',
+    });
+
+    assert.equal(response.status, 200);
+    assert.equal(
+        (response.body as { message: { content: string } }).message.content,
+        'Server 已收到：你好',
+    );
+});
+
+test('rejects invalid chat request bodies', async () => {
+    const invalidBodies = [
+        {},
+        { messages: 'not-an-array' },
+        { messages: [] },
+        { messages: [{ role: 'admin', content: 'hello' }] },
+        { messages: [{ role: 'user', content: '   ' }] },
+        { messages: [{ role: 'assistant', content: 'hello' }] },
+    ];
+
+    for (const body of invalidBodies) {
+        const response = await request(createApp(), '/api/chat', {
+            body: JSON.stringify(body),
+            headers: {
+                'content-type': 'application/json',
+                'x-request-id': 'invalid-chat-request',
+            },
+            method: 'POST',
+        });
+
+        assert.equal(response.status, 400);
+        assert.deepEqual(response.body, {
+            error: {
+                code: 'INVALID_REQUEST',
+                message: 'Invalid request.',
+                requestId: 'invalid-chat-request',
+            },
+        });
+    }
+});
