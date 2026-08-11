@@ -67,7 +67,7 @@ Vite 已将 `/api` 代理到默认 Server 地址。当前 `/chat` 页面仍使�
 ## 当前可用接口
 
 - `GET /health`：进程存活检查
-- `POST /api/chat`：回声占位接口，不调用真实模型
+- `POST /api/v1/chat/messages`：回声占位接口，不调用真实模型
 
 请求和响应示例见 [API 文档](./docs/api.md)。
 

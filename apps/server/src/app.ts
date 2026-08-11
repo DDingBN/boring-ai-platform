@@ -2,6 +2,9 @@ import express from 'express';
 import { errorMiddleware } from './middleware/error.middleware';
 import { requestIdMiddleware } from './middleware/request-id.middleware';
 import { chatRouter } from './chat/chat.router';
+import { conversationRouter } from './conversation/conversation.router';
+import { modelRouter } from './model/model.router';
+import { createSuccessResponse } from './utils/api-response';
 
 const JSON_BODY_LIMIT = '1mb';
 
@@ -13,10 +16,12 @@ export function createApp(): express.Express {
 
     // 存活检查只表示当前进程能够响应 HTTP 请求。
     app.get('/health', (_req, res) => {
-        res.json({ ok: true });
+        res.json(createSuccessResponse({ ok: true }));
     });
 
-    app.use('/api/chat', chatRouter);
+    app.use('/api/v1/models', modelRouter);
+    app.use('/api/v1/chat', chatRouter);
+    app.use('/api/v1/conversations', conversationRouter);
 
     app.use((_req, _res, next) => {
         const error = new Error('Route not found.') as Error & { status: number };

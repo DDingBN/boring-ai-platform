@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue';
+import { axiosPost } from '../../utils/request';
 
 const initialMessages = [
     {
@@ -29,12 +30,14 @@ function handleSend() {
         return;
     }
 
+    axiosPost('/chat/sendMsg',{
+        content: content
+    }).then((res) => {
+        console.log(res)
+    })
+
     messages.value.push(
         createMessage('user', content),
-        createMessage(
-            'assistant',
-            `已收到：${content}\n\n这里后续可以替换为 fetch('/api/chat') 或 SSE 流式响应。`,
-        ),
     );
     inputValue.value = '';
 }

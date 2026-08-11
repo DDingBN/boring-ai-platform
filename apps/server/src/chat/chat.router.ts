@@ -1,17 +1,12 @@
 import { Router } from 'express';
 import { randomUUID } from 'node:crypto';
-import { chatRequestSchema, type ChatInputMessage } from './chat.schema';
+import { chatRequestSchema, type ChatResponse } from './chat.schema';
+import { createSuccessResponse } from '../utils/api-response';
+import { createConversation } from '../conversation/conversation.service';
 
 export const chatRouter = Router();
 
-interface ChatResponse {
-    message: ChatInputMessage & {
-        id: string;
-        createdAt: string;
-    };
-}
-
-chatRouter.post('/', (req, res) => {
+chatRouter.post('/messages', (req, res) => {
     const result = chatRequestSchema.safeParse(req.body);
 
     if (!result.success) {
@@ -23,16 +18,17 @@ chatRouter.post('/', (req, res) => {
         throw error;
     }
 
-    const lastMessage = result.data.messages.at(-1)!;
+    const conversationId = result.data.conversationId ?? createConversation().id;
 
     const response: ChatResponse = {
+        conversationId,
         message: {
             id: randomUUID(),
             role: 'assistant',
-            content: `Server 已收到：${lastMessage.content}`,
+            content: `Server 已收到：${result.data.content}`,
             createdAt: new Date().toISOString(),
         },
     };
 
-    res.status(200).json(response);
+    res.status(200).json(createSuccessResponse(response));
 });
