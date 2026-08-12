@@ -1,7 +1,7 @@
 # Boring AI Platform
 
-Boring AI Platform 是一个正在开发的 AI 应用练习项目。当前仓库提供 Vue Web、Express
-Server 和基础工程化；真实模型调用、消息持久化和流式输出尚未实现。
+Boring AI Platform 是一个用于练习 AI 应用开发的全栈项目，采用 monorepo 管理 Vue Web、
+Express Server 和配套工程配置。
 
 ## 技术栈
 
@@ -28,16 +28,16 @@ cp .env.example .env
 
 没有 `.env` 时也会使用默认值启动。
 
-| 变量               | 默认值        | 当前用途                       |
-| ------------------ | ------------- | ------------------------------ |
-| `NODE_ENV`         | `development` | Server 运行环境                |
-| `SERVER_HOST`      | `127.0.0.1`   | Server 监听地址                |
-| `SERVER_PORT`      | `3001`        | Server 监听端口                |
-| `WEB_HOST`         | `127.0.0.1`   | Vite 监听地址                  |
-| `WEB_PORT`         | `5173`        | Vite 开发端口                  |
-| `AI_PROVIDER`      | `deepseek`    | 仅做 Server 配置校验，尚未调用 |
-| `DEEPSEEK_API_KEY` | 空            | 尚未用于模型请求               |
-| `DATABASE_URL`     | 空            | 尚未建立数据库连接             |
+| 变量               | 默认值        | 用途                                     |
+| ------------------ | ------------- | ---------------------------------------- |
+| `NODE_ENV`         | `development` | Server 运行环境                          |
+| `SERVER_HOST`      | `127.0.0.1`   | Server 监听地址及 Web 开发代理目标       |
+| `SERVER_PORT`      | `3001`        | Server 监听端口及 Web 开发代理目标       |
+| `WEB_HOST`         | `127.0.0.1`   | Vite 监听地址                            |
+| `WEB_PORT`         | `5173`        | Vite 开发端口                            |
+| `AI_PROVIDER`      | `deepseek`    | Server 模型提供商配置                    |
+| `DEEPSEEK_API_KEY` | 空            | DeepSeek 凭据，仅允许 Server 读取        |
+| `DATABASE_URL`     | 空            | Prisma/PostgreSQL 配置（API 启动时可选） |
 
 `DEEPSEEK_API_KEY` 只能由 Server 读取，不要添加 `VITE_` 前缀或提交真实密钥。
 
@@ -61,15 +61,12 @@ pnpm --filter @repo/web dev
 pnpm --filter @repo/server dev
 ```
 
-Vite 已将 `/api` 代理到默认 Server 地址。当前 `/chat` 页面仍使用浏览器本地 Mock
-回复，没有调用 Server。
+Vite 会根据 `SERVER_HOST` 和 `SERVER_PORT` 将 `/api` 代理到 Server。
 
-## 当前可用接口
+## 项目文档
 
-- `GET /health`：进程存活检查
-- `POST /api/v1/chat/messages`：回声占位接口，不调用真实模型
-
-请求和响应示例见 [API 文档](./docs/api.md)。
+- [API 接口文档](./docs/api.md)
+- [项目进度](./docs/project-status.md)
 
 ## 仓库结构
 
@@ -78,7 +75,8 @@ apps/
   web/       Vue 3 前端
   server/    Express API
 docs/
-  api.md     当前已实现接口
+  api.md             API 接口说明
+  project-status.md  实现进度与待办事项
 ```
 
 Web 和 Server 保持前后端边界，只通过 HTTP JSON 协作；Web 使用 JavaScript，Server 使用
@@ -94,12 +92,14 @@ pnpm test
 pnpm build
 ```
 
-当前自动化测试覆盖 Server 的 health、request ID、非法 JSON 和请求体大小限制，尚未覆盖
-Chat 业务行为。
+## 数据库工具
 
-## 当前限制
+配置有效的 `DATABASE_URL` 后，可以校验 Schema、生成 Prisma Client 并检查数据库连接：
 
-- Chat 页面与 Server 未连通。
-- 没有真实 LLM provider。
-- 没有数据库、会话或运行记录。
-- 没有流式输出和请求取消。
+```bash
+pnpm --filter @repo/server db:validate
+pnpm --filter @repo/server db:generate
+printf 'SELECT 1;\n' | pnpm --filter @repo/server exec prisma db execute --stdin
+```
+
+生成的 Prisma Client 位于 `apps/server/generated/prisma`，该目录不会提交到 Git。

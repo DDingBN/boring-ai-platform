@@ -8,7 +8,7 @@ const DEFAULT_SERVER_PORT = 3001;
 // 这些只读列表同时作为运行时白名单和 TypeScript 联合类型的唯一来源。
 const NODE_ENVS = ['development', 'test', 'production'] as const;
 const AI_PROVIDERS = ['deepseek'] as const;
-const DATABASE_PROTOCOLS = new Set(['file:', 'mysql:', 'postgres:', 'postgresql:']);
+const DATABASE_PROTOCOLS = new Set(['postgres:', 'postgresql:']);
 
 type NodeEnvironment = (typeof NODE_ENVS)[number];
 type AiProvider = (typeof AI_PROVIDERS)[number];
@@ -123,7 +123,7 @@ function readDatabaseUrl(value: string | undefined): string | undefined {
     }
 
     if (!DATABASE_PROTOCOLS.has(url.protocol)) {
-        throw new Error('DATABASE_URL must use postgresql, postgres, mysql, or file protocol.');
+        throw new Error('DATABASE_URL must use postgresql or postgres protocol.');
     }
 
     return value;

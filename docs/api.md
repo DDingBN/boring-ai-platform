@@ -1,42 +1,16 @@
-# API
+# API 接口文档
 
-当前 Server 默认运行在 `http://127.0.0.1:3001`。所有响应都包含 `x-request-id` 响应头。
+## 基本信息
 
-## `GET /health`
+| 项目         | 值                      |
+| ------------ | ----------------------- |
+| Base URL     | `http://127.0.0.1:3001` |
+| API 版本     | `v1`                    |
+| Content-Type | `application/json`      |
 
-检查 HTTP 进程是否能够响应，不检查模型或数据库。
+所有响应均包含 `x-request-id` 响应头。
 
-响应：
-
-```json
-{
-  "code": 200,
-  "msg": "success",
-  "data": {
-    "ok": true
-  }
-}
-```
-
-## `POST /api/v1/chat/messages`
-
-当前是回声接口，不调用真实模型，也不保存消息。
-
-请求：
-
-```json
-{
-  "content": "你好"
-}
-```
-
-请求由 Zod 在运行时校验，并且只接受以下字段：
-
-- `conversationId`：可选，会话标识；首次请求省略时由服务端创建，后续请求传回该值
-- `content`：必填，本次用户输入；去除首尾空白后必须非空，最多 2,000 个字符
-
-前端不传 `role` 或完整消息历史。服务端将 `content` 视为 `user` 消息；接入会话存储后，
-服务端通过 `conversationId` 加载历史上下文。
+## 响应格式
 
 成功响应：
 
@@ -44,19 +18,11 @@
 {
   "code": 200,
   "msg": "success",
-  "data": {
-    "conversationId": "server-generated-conversation-uuid",
-    "message": {
-      "id": "server-generated-message-uuid",
-      "role": "assistant",
-      "content": "Server 已收到：你好",
-      "createdAt": "2026-08-06T00:00:00.000Z"
-    }
-  }
+  "data": {}
 }
 ```
 
-请求不符合当前条件时返回统一错误：
+错误响应：
 
 ```json
 {
@@ -68,28 +34,172 @@
 }
 ```
 
-`code: 200` 表示业务成功。请求体缺少必填字段、字段内容不符合限制或包含约定之外的字段时，
-Server 返回 HTTP `400`，响应体中的 `code` 同样为 `400`。
+## 接口总览
 
-## 规划中的占位接口
+| 模块         | 方法   | 路径                                             | 状态   |
+| ------------ | ------ | ------------------------------------------------ | ------ |
+| Health       | GET    | `/health`                                        | 已实现 |
+| Model        | GET    | `/api/v1/models`                                 | 待实现 |
+| Chat         | POST   | `/api/v1/chat/messages`                          | 已实现 |
+| Conversation | GET    | `/api/v1/conversations`                          | 待实现 |
+| Conversation | GET    | `/api/v1/conversations/:conversationId`          | 待实现 |
+| Conversation | GET    | `/api/v1/conversations/:conversationId/messages` | 待实现 |
+| Conversation | PATCH  | `/api/v1/conversations/:conversationId`          | 待实现 |
+| Conversation | DELETE | `/api/v1/conversations/:conversationId`          | 待实现 |
 
-以下接口已经注册，但业务逻辑尚未实现，当前统一返回 HTTP `501`：
+## Health
 
-- `GET /api/v1/models`
-- `GET /api/v1/conversations`
-- `GET /api/v1/conversations/:conversationId`
-- `GET /api/v1/conversations/:conversationId/messages`
-- `PATCH /api/v1/conversations/:conversationId`
-- `DELETE /api/v1/conversations/:conversationId`
+### 健康检查
 
-占位响应：
+```http
+GET /health
+```
+
+#### 响应
 
 ```json
 {
-  "code": 501,
-  "msg": "Not implemented.",
+  "code": 200,
+  "msg": "success",
   "data": {
-    "requestId": "req_xxx"
+    "ok": true
   }
 }
 ```
+
+## Model
+
+### 获取模型列表
+
+```http
+GET /api/v1/models
+```
+
+## Chat
+
+### 发送消息
+
+```http
+POST /api/v1/chat/messages
+```
+
+#### 请求参数
+
+| 字段             | 类型   | 必填 | 约束          | 说明                    |
+| ---------------- | ------ | ---- | ------------- | ----------------------- |
+| `conversationId` | string | 否   | 1–100 个字符  | 会话 ID；首次发送时不传 |
+| `content`        | string | 是   | 1–2000 个字符 | 用户输入内容            |
+
+#### 请求示例
+
+首次发送：
+
+```json
+{
+  "content": "你好"
+}
+```
+
+继续会话：
+
+```json
+{
+  "conversationId": "conversation_123",
+  "content": "继续刚才的话题"
+}
+```
+
+#### 响应参数
+
+| 字段                | 类型        | 说明              |
+| ------------------- | ----------- | ----------------- |
+| `conversationId`    | string      | 会话 ID           |
+| `message.id`        | string      | 消息 ID           |
+| `message.role`      | `assistant` | 消息角色          |
+| `message.content`   | string      | 消息内容          |
+| `message.createdAt` | string      | ISO 8601 创建时间 |
+
+#### 响应示例
+
+```json
+{
+  "code": 200,
+  "msg": "success",
+  "data": {
+    "conversationId": "conversation_123",
+    "message": {
+      "id": "message_123",
+      "role": "assistant",
+      "content": "你好，有什么可以帮助你？",
+      "createdAt": "2026-08-12T10:00:00.000Z"
+    }
+  }
+}
+```
+
+## Conversation
+
+### 获取会话列表
+
+```http
+GET /api/v1/conversations
+```
+
+### 获取单个会话
+
+```http
+GET /api/v1/conversations/:conversationId
+```
+
+#### 路径参数
+
+| 字段             | 类型   | 必填 | 说明    |
+| ---------------- | ------ | ---- | ------- |
+| `conversationId` | string | 是   | 会话 ID |
+
+### 获取会话消息
+
+```http
+GET /api/v1/conversations/:conversationId/messages
+```
+
+#### 路径参数
+
+| 字段             | 类型   | 必填 | 说明    |
+| ---------------- | ------ | ---- | ------- |
+| `conversationId` | string | 是   | 会话 ID |
+
+### 修改会话
+
+```http
+PATCH /api/v1/conversations/:conversationId
+```
+
+#### 路径参数
+
+| 字段             | 类型   | 必填 | 说明    |
+| ---------------- | ------ | ---- | ------- |
+| `conversationId` | string | 是   | 会话 ID |
+
+### 删除会话
+
+```http
+DELETE /api/v1/conversations/:conversationId
+```
+
+#### 路径参数
+
+| 字段             | 类型   | 必填 | 说明    |
+| ---------------- | ------ | ---- | ------- |
+| `conversationId` | string | 是   | 会话 ID |
+
+## 状态码
+
+| HTTP 状态码 | 说明         |
+| ----------- | ------------ |
+| `200`       | 请求成功     |
+| `400`       | 请求参数错误 |
+| `404`       | 资源不存在   |
+| `413`       | 请求体过大   |
+| `500`       | 服务端错误   |
+| `501`       | 接口尚未实现 |

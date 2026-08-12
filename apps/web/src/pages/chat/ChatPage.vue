@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { axiosPost } from '../../utils/request';
+import { axiosPost } from '../../utils/request.js';
 
 const initialMessages = [
     {
@@ -30,15 +30,13 @@ function handleSend() {
         return;
     }
 
-    axiosPost('/chat/sendMsg',{
-        content: content
+    axiosPost('/v1/chat/messages', {
+        content: content,
     }).then((res) => {
-        console.log(res)
-    })
+        console.log(res);
+    });
 
-    messages.value.push(
-        createMessage('user', content),
-    );
+    messages.value.push(createMessage('user', content));
     inputValue.value = '';
 }
 
