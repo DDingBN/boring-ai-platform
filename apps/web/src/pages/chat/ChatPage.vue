@@ -6,7 +6,7 @@ const initialMessages = [
     {
         id: 'welcome',
         role: 'assistant',
-        content: '你好，我是 Boring Chat。你可以先把这里接成本地 mock，后续再替换成真实后端接口。',
+        content: '你好，我是 Boring Chat。有什么可以帮助你？',
         createdAt: new Date().toISOString(),
     },
 ];
@@ -70,7 +70,7 @@ function handlePressEnter(event) {
                 <a-textarea
                     v-model:value="inputValue"
                     :auto-size="{ minRows: 2, maxRows: 6 }"
-                    placeholder="输入消息，Enter 发送，Shift + Enter 换行"
+                    placeholder="输入消息，按 Enter 发送，按 Shift + Enter 换行"
                     @press-enter="handlePressEnter"
                 />
                 <a-button type="primary" @click="handleSend">发送</a-button>

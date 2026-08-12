@@ -15,18 +15,18 @@ function readStatus(error: HttpError): number {
 
 function publicMessage(status: number): string {
     if (status === 404) {
-        return 'Route not found.';
+        return '请求的接口不存在。';
     }
 
     if (status === 413) {
-        return 'Request body is too large.';
+        return '请求体过大。';
     }
 
     if (status >= 400 && status < 500) {
-        return 'Invalid request.';
+        return '请求参数无效。';
     }
 
-    return 'Internal server error.';
+    return '服务器内部错误。';
 }
 
 export const errorMiddleware: ErrorRequestHandler = (error: HttpError, _req, res, _next) => {

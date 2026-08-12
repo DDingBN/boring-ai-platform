@@ -10,7 +10,7 @@ chatRouter.post('/messages', (req, res) => {
     const result = chatRequestSchema.safeParse(req.body);
 
     if (!result.success) {
-        const error = new Error('Invalid chat request.', { cause: result.error }) as Error & {
+        const error = new Error('聊天请求参数无效。', { cause: result.error }) as Error & {
             status: number;
         };
 
@@ -25,7 +25,7 @@ chatRouter.post('/messages', (req, res) => {
         message: {
             id: randomUUID(),
             role: 'assistant',
-            content: `Server 已收到：${result.data.content}`,
+            content: `服务端已收到：${result.data.content}`,
             createdAt: new Date().toISOString(),
         },
     };

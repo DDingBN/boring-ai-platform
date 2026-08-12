@@ -17,7 +17,7 @@
 ```json
 {
   "code": 200,
-  "msg": "success",
+  "msg": "成功",
   "data": {}
 }
 ```
@@ -27,7 +27,7 @@
 ```json
 {
   "code": 400,
-  "msg": "Invalid request.",
+  "msg": "请求参数无效。",
   "data": {
     "requestId": "req_xxx"
   }
@@ -60,7 +60,7 @@ GET /health
 ```json
 {
   "code": 200,
-  "msg": "success",
+  "msg": "成功",
   "data": {
     "ok": true
   }
@@ -124,7 +124,7 @@ POST /api/v1/chat/messages
 ```json
 {
   "code": 200,
-  "msg": "success",
+  "msg": "成功",
   "data": {
     "conversationId": "conversation_123",
     "message": {

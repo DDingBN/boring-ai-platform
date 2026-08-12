@@ -82,7 +82,13 @@ request.interceptors.response.use(
             );
         }
 
-        return Promise.reject(error);
+        return Promise.reject(
+            new ApiError('网络请求失败，请检查网络连接或服务状态。', {
+                cause: error,
+                code: 'NETWORK_ERROR',
+                status: response?.status,
+            }),
+        );
     },
 );
 

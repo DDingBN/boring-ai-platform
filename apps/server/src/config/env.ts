@@ -48,7 +48,7 @@ function readNodeEnv(value: string | undefined): NodeEnvironment {
     const nodeEnv = value ?? DEFAULT_NODE_ENV;
 
     if (!NODE_ENVS.includes(nodeEnv as NodeEnvironment)) {
-        throw new Error(`NODE_ENV must be one of: ${NODE_ENVS.join(', ')}.`);
+        throw new Error(`NODE_ENV 必须是以下值之一：${NODE_ENVS.join('、')}。`);
     }
 
     return nodeEnv as NodeEnvironment;
@@ -60,13 +60,13 @@ function readPort(value: string | undefined): number {
     }
 
     if (!/^\d+$/.test(value)) {
-        throw new Error('SERVER_PORT must be an integer between 1 and 65535.');
+        throw new Error('SERVER_PORT 必须是 1 到 65535 之间的整数。');
     }
 
     const port = Number(value);
 
     if (!Number.isSafeInteger(port) || port < 1 || port > 65535) {
-        throw new Error('SERVER_PORT must be an integer between 1 and 65535.');
+        throw new Error('SERVER_PORT 必须是 1 到 65535 之间的整数。');
     }
 
     return port;
@@ -76,7 +76,7 @@ function readHost(value: string | undefined): string {
     const host = value?.trim() || DEFAULT_SERVER_HOST;
 
     if (/\s/.test(host)) {
-        throw new Error('SERVER_HOST must not contain whitespace.');
+        throw new Error('SERVER_HOST 不能包含空白字符。');
     }
 
     return host;
@@ -89,7 +89,7 @@ function readOptionalSecret(value: string | undefined, variableName: string): st
     }
 
     if (/\s/.test(value)) {
-        throw new Error(`${variableName} must not contain whitespace.`);
+        throw new Error(`${variableName} 不能包含空白字符。`);
     }
 
     return value;
@@ -99,7 +99,7 @@ function readProvider(value: string | undefined): AiProvider {
     const provider = value ?? AI_PROVIDERS[0];
 
     if (!AI_PROVIDERS.includes(provider as AiProvider)) {
-        throw new Error(`AI_PROVIDER must be one of: ${AI_PROVIDERS.join(', ')}.`);
+        throw new Error(`AI_PROVIDER 必须是以下值之一：${AI_PROVIDERS.join('、')}。`);
     }
 
     return provider as AiProvider;
@@ -111,7 +111,7 @@ function readDatabaseUrl(value: string | undefined): string | undefined {
     }
 
     if (/\s/.test(value)) {
-        throw new Error('DATABASE_URL must not contain whitespace.');
+        throw new Error('DATABASE_URL 不能包含空白字符。');
     }
 
     let url: URL;
@@ -119,11 +119,11 @@ function readDatabaseUrl(value: string | undefined): string | undefined {
     try {
         url = new URL(value);
     } catch {
-        throw new Error('DATABASE_URL must be a valid database connection URL.');
+        throw new Error('DATABASE_URL 必须是有效的数据库连接地址。');
     }
 
     if (!DATABASE_PROTOCOLS.has(url.protocol)) {
-        throw new Error('DATABASE_URL must use postgresql or postgres protocol.');
+        throw new Error('DATABASE_URL 必须使用 postgresql 或 postgres 协议。');
     }
 
     return value;

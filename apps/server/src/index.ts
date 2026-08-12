@@ -5,5 +5,5 @@ const config = loadServerConfig();
 const app = createApp();
 
 app.listen(config.port, config.host, () => {
-    console.log(`server running at http://${config.host}:${config.port}`);
+    console.log(`服务已启动：http://${config.host}:${config.port}`);
 });

@@ -10,7 +10,7 @@ const router = useRouter();
         :class="$style.page"
         status="404"
         title="404"
-        sub-title="页面不存在，或者对应的页面组件还没有在 routeRegistry 中注册。"
+        sub-title="页面不存在，或对应的页面组件尚未注册。"
     >
         <template #extra>
             <a-button type="primary" @click="router.push(defaultMenuPath)">返回首页</a-button>

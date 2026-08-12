@@ -40,7 +40,7 @@ test('createApp serves a clean liveness response without starting the configured
     assert.equal(response.status, 200);
     assert.deepEqual(response.body, {
         code: 200,
-        msg: 'success',
+        msg: '成功',
         data: { ok: true },
     });
     assert.match(response.headers.get('x-request-id') ?? '', /^req_[0-9a-f-]{36}$/);
@@ -67,7 +67,7 @@ test('returns a safe JSON error for malformed JSON', async () => {
     assert.equal(response.status, 400);
     assert.deepEqual(response.body, {
         code: 400,
-        msg: 'Invalid request.',
+        msg: '请求参数无效。',
         data: {
             requestId: 'invalid-json-request',
         },
@@ -83,7 +83,7 @@ test('rejects JSON bodies larger than the configured limit', async () => {
     });
 
     assert.equal(response.status, 413);
-    assert.equal((response.body as { msg: string }).msg, 'Request body is too large.');
+    assert.equal((response.body as { msg: string }).msg, '请求体过大。');
 });
 
 test('accepts a valid chat request', async () => {
@@ -107,10 +107,10 @@ test('accepts a valid chat request', async () => {
     const message = body.data.message;
 
     assert.equal(body.code, 200);
-    assert.equal(body.msg, 'success');
+    assert.equal(body.msg, '成功');
     assert.match(body.data.conversationId, /^[0-9a-f-]{36}$/);
     assert.equal(message.role, 'assistant');
-    assert.equal(message.content, 'Server 已收到：你好');
+    assert.equal(message.content, '服务端已收到：你好');
     assert.match(message.id, /^[0-9a-f-]{36}$/);
     assert.equal(Number.isNaN(Date.parse(message.createdAt)), false);
 });
@@ -161,7 +161,7 @@ test('rejects invalid chat request bodies', async () => {
         assert.equal(response.status, 400);
         assert.deepEqual(response.body, {
             code: 400,
-            msg: 'Invalid request.',
+            msg: '请求参数无效。',
             data: {
                 requestId: 'invalid-chat-request',
             },
@@ -184,6 +184,6 @@ test('exposes planned model and conversation routes as explicit placeholders', a
 
         assert.equal(response.status, 501);
         assert.equal((response.body as { code: number }).code, 501);
-        assert.equal((response.body as { msg: string }).msg, 'Not implemented.');
+        assert.equal((response.body as { msg: string }).msg, '接口尚未实现。');
     }
 });

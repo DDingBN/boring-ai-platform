@@ -24,7 +24,7 @@ export function createApp(): express.Express {
     app.use('/api/v1/conversations', conversationRouter);
 
     app.use((_req, _res, next) => {
-        const error = new Error('Route not found.') as Error & { status: number };
+        const error = new Error('请求的接口不存在。') as Error & { status: number };
         error.status = 404;
         next(error);
     });

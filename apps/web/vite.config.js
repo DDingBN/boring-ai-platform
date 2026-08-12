@@ -14,13 +14,13 @@ function readPort(value, variableName, defaultValue) {
     }
 
     if (!/^\d+$/.test(value)) {
-        throw new Error(`${variableName} must be an integer between 1 and 65535.`);
+        throw new Error(`${variableName} 必须是 1 到 65535 之间的整数。`);
     }
 
     const port = Number(value);
 
     if (!Number.isSafeInteger(port) || port < 1 || port > 65535) {
-        throw new Error(`${variableName} must be an integer between 1 and 65535.`);
+        throw new Error(`${variableName} 必须是 1 到 65535 之间的整数。`);
     }
 
     return port;
@@ -30,7 +30,7 @@ function readHost(value, variableName, defaultValue) {
     const host = value?.trim() || defaultValue;
 
     if (/\s/.test(host)) {
-        throw new Error(`${variableName} must not contain whitespace.`);
+        throw new Error(`${variableName} 不能包含空白字符。`);
     }
 
     return host;
