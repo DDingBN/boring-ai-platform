@@ -13,6 +13,7 @@
 
 ## 最近完成
 
+- 适配新版 `langchain-deepseek` 的类型定义，在 Provider 边界将 API Key 转换为 `SecretStr`。
 - 将原 Express/TypeScript Server 迁移为 Python 3.13、FastAPI、Pydantic 2 和 uv。
 - 保留 `/api/v1`、统一响应结构、请求 ID 和前端调用方式。
 - 增加 Mock Provider，以及基于 `langchain-deepseek` 的 DeepSeek Provider。

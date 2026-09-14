@@ -1,5 +1,6 @@
 from langchain_deepseek import ChatDeepSeek
 from langchain_core.messages import HumanMessage
+from pydantic import SecretStr
 
 from app.core.errors import ProviderRequestError
 
@@ -7,7 +8,7 @@ from app.core.errors import ProviderRequestError
 class DeepSeekChatProvider:
     def __init__(self, *, api_key: str, model: str) -> None:
         self._model = ChatDeepSeek(
-            api_key=api_key,
+            api_key=SecretStr(api_key),
             model=model,
             max_retries=2,
             timeout=30,
