@@ -13,6 +13,9 @@ const initialMessages = [
 
 const messages = ref([...initialMessages]);
 const inputValue = ref('');
+const conversationId = ref();
+const errorMessage = ref('');
+const isSending = ref(false);
 
 function createMessage(role, content) {
     return {
@@ -23,21 +26,31 @@ function createMessage(role, content) {
     };
 }
 
-function handleSend() {
+async function handleSend() {
     const content = inputValue.value.trim();
 
-    if (!content) {
+    if (!content || isSending.value) {
         return;
     }
 
-    axiosPost('/v1/chat/messages', {
-        content: content,
-    }).then((res) => {
-        console.log(res);
-    });
-
     messages.value.push(createMessage('user', content));
     inputValue.value = '';
+    errorMessage.value = '';
+    isSending.value = true;
+
+    try {
+        const response = await axiosPost('/v1/chat/messages', {
+            ...(conversationId.value ? { conversationId: conversationId.value } : {}),
+            content,
+        });
+
+        conversationId.value = response.conversationId;
+        messages.value.push(response.message);
+    } catch (error) {
+        errorMessage.value = error?.message || '消息发送失败，请稍后重试。';
+    } finally {
+        isSending.value = false;
+    }
 }
 
 function handlePressEnter(event) {
@@ -66,14 +79,25 @@ function handlePressEnter(event) {
                     </a-list-item>
                 </template>
             </a-list>
+            <a-alert
+                v-if="errorMessage"
+                :class="$style.error"
+                closable
+                :message="errorMessage"
+                type="error"
+                @close="errorMessage = ''"
+            />
             <a-space-compact :class="$style.composer">
                 <a-textarea
                     v-model:value="inputValue"
                     :auto-size="{ minRows: 2, maxRows: 6 }"
+                    :disabled="isSending"
                     placeholder="输入消息，按 Enter 发送，按 Shift + Enter 换行"
                     @press-enter="handlePressEnter"
                 />
-                <a-button type="primary" @click="handleSend">发送</a-button>
+                <a-button :loading="isSending" type="primary" @click="handleSend">
+                    发送
+                </a-button>
             </a-space-compact>
         </a-card>
     </div>
@@ -139,6 +163,11 @@ function handlePressEnter(event) {
     flex: 0 0 auto;
     min-width: 0;
     width: 100%;
+}
+
+.error {
+    flex: 0 0 auto;
+    margin-bottom: 12px;
 }
 
 .composer :global(.ant-btn) {

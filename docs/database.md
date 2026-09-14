@@ -2,9 +2,10 @@
 
 ## 1. 设计说明
 
-- 数据库使用 PostgreSQL，应用层通过 Prisma 访问。
+- 数据库使用 PostgreSQL，应用层计划通过 SQLAlchemy 2 的异步接口访问，并使用 Alembic 管理迁移。
 - 当前阶段不维护 `User`、`App` 实体；`userId`、`appId` 保存外部业务系统传入的标识。
-- 所有业务主键使用 UUID。Prisma 字段使用 camelCase，数据库表名和列名使用 snake_case。
+- 所有业务主键使用 UUID。Python 属性与数据库表名、列名统一使用 snake_case；HTTP JSON
+  继续使用 camelCase 以兼容现有 Web API。
 - 时间字段使用 `timestamptz(3)`，统一写入 UTC，展示时由客户端转换时区。
 - 当前核心实体为 `Model`、`Conversation`、`Message`、`Run`。
 - `Message` 只保存对话内容，`Run` 保存一次模型调用的执行状态、模型和用量。一次用户消息可以因重试或重新生成产生多个 Run。
@@ -36,7 +37,7 @@ erDiagram
 
 ## 3. 表结构
 
-以下“字段”列使用 Prisma 字段名；括号内是映射后的 PostgreSQL 列名。
+以下“字段”列使用对外 API 字段名；括号内是 PostgreSQL 列名。
 
 ### 3.1 models
 
@@ -55,7 +56,7 @@ erDiagram
 | `isEnabled` (`is_enabled`)              | `boolean`        | 否       | `true`              | —                             | 是否允许创建新的 Run                            |
 | `sortOrder` (`sort_order`)              | `integer`        | 否       | `0`                 | —                             | 模型列表展示顺序                                |
 | `createdAt` (`created_at`)              | `timestamptz(3)` | 否       | `now()`             | —                             | 创建时间                                        |
-| `updatedAt` (`updated_at`)              | `timestamptz(3)` | 否       | `now()`             | —                             | 更新时间，由 Prisma `@updatedAt` 维护           |
+| `updatedAt` (`updated_at`)              | `timestamptz(3)` | 否       | `now()`             | —                             | 更新时间，由应用服务维护                        |
 
 `provider` 使用字符串而不是数据库枚举，避免每接入一个 Provider 都执行枚举迁移。`capabilities` 只保存低频、结构可能变化的能力信息；需要查询或约束的稳定属性应提升为普通列。
 
@@ -73,7 +74,7 @@ erDiagram
 | `createdAt` (`created_at`) | `timestamptz(3)` | 否       | `now()`             | —                                      | 创建时间               |
 | `updatedAt` (`updated_at`) | `timestamptz(3)` | 否       | `now()`             | —                                      | 最近活动时间           |
 
-`updatedAt` 用于会话列表排序。新增 Message、完成或失败 Run、修改标题、切换默认模型时，服务层都应显式更新该字段。仅依赖 Prisma `@updatedAt` 不会在新增子表记录时自动更新 Conversation。
+`updatedAt` 用于会话列表排序。新增 Message、完成或失败 Run、修改标题、切换默认模型时，服务层都应显式更新该字段；新增关联记录不会自动更新 Conversation。
 
 ### 3.3 messages
 
@@ -111,7 +112,7 @@ Run 表示一次完整的模型调用。输入消息写入后立即创建 Run，
 | `startedAt` (`started_at`)                  | `timestamptz(3)` | 是       | `NULL`              | —                                              | 开始调用 Provider 的时间              |
 | `finishedAt` (`finished_at`)                | `timestamptz(3)` | 是       | `NULL`              | —                                              | 进入终态的时间                        |
 | `createdAt` (`created_at`)                  | `timestamptz(3)` | 否       | `now()`             | —                                              | 创建时间                              |
-| `updatedAt` (`updated_at`)                  | `timestamptz(3)` | 否       | `now()`             | —                                              | 更新时间，由 Prisma `@updatedAt` 维护 |
+| `updatedAt` (`updated_at`)                  | `timestamptz(3)` | 否       | `now()`             | —                                              | 更新时间，由应用服务维护              |
 
 业务约束：
 
