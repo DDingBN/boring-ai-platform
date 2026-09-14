@@ -3,6 +3,9 @@
 本文档记录 Boring AI Platform 的当前实现状态。功能发生变化时，应同步更新本页以及相关
 API 文档。
 
+跨设备或切换 Codex 会话时，先阅读 `AGENTS.md` 和 `docs/handoff.md`；每次完成一段开发后
+更新交接页并随代码一起提交。
+
 ## 已实现
 
 ### Web

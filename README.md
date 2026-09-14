@@ -71,6 +71,7 @@ Vite 会根据 `SERVER_HOST` 和 `SERVER_PORT` 将 `/api` 代理到 Server。
 
 ## 项目文档
 
+- [Codex/跨设备开发交接](./docs/handoff.md)
 - [API 接口文档](./docs/api.md)
 - [项目进度](./docs/project-status.md)
 - [数据库设计](./docs/database.md)
@@ -85,6 +86,7 @@ apps/
 docs/
   api.md              API 接口说明
   database.md         数据库设计
+  handoff.md          Codex 与跨设备开发交接
   python-migration.md Python 迁移记录与后续任务
   project-status.md   实现进度与待办事项
 ```
