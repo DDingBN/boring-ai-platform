@@ -11,7 +11,7 @@
 - `Message` 只保存对话内容，`Run` 保存一次模型调用的执行状态、模型和用量。一次用户消息可以因重试或重新生成产生多个 Run。
 - Provider 凭据只允许通过 Server 环境变量或后续的密钥管理服务读取，不写入数据库。
 
-当前 `POST /api/v1/chat/messages` 还是无持久化的占位实现，也没有接收 `userId`、`appId`。接入数据库前，Server 必须从可信的认证上下文取得这两个值，或同步调整 API；不能只根据客户端传入的 `conversationId` 判断会话归属。
+当前 `POST /api/v1/chat/messages` 是无持久化、无历史上下文的单轮聊天实现，也没有接收 `userId`、`appId`。接入数据库前，Server 必须从可信的认证上下文取得这两个值，或同步调整 API；不能只根据客户端传入的 `conversationId` 判断会话归属。
 
 ## 2. ER 关系
 

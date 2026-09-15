@@ -5,13 +5,26 @@
 
 ## 当前快照
 
-- 更新时间：2026-09-14。
+- 更新时间：2026-09-15。
 - 分支：`main`。
-- 记录前同步状态：本地与 `origin/main` 一致，基线提交为 `24be76a feat：rebuild`。
+- 文档核对基线：HEAD 为 `0005fd2 fix：修复`；与本地远程跟踪分支 `origin/main`
+  无领先或落后提示，本次未 fetch 或 push。
 - 当前阶段：Vue + FastAPI 最小聊天闭环已经跑通，下一阶段尚未开始。
 - 推荐的下一项任务：完成 SSE 流式聊天和前端请求取消，暂不同时展开数据库与 Agent。
 
 ## 最近完成
+
+### 2026-09-15：文档事实校对
+
+- 目标：使接口说明与当前代码行为一致，保持交接记录聚焦项目实现状态。
+- 同步 `docs/api.md` 已实现的 Provider `502/503` 与可选 `data.errorCode`，澄清会话 ID
+  不代表历史记忆；将 `docs/database.md` 对 Chat 的“占位实现”描述改为无持久化的单轮聊天。
+- 应用实现、依赖和架构未变化，RunStep、工具消息与等待审批状态仍需后续设计。
+- 验证：`git diff --check` 通过。仅文档变化，未重跑应用 lint、测试与构建；
+  后续保留的应用验证结果属于此前会话。本地未安装可执行的 Prettier，未完成格式工具检查。
+- 阻塞：无。下一步实现 SSE 流式聊天和请求取消。
+
+### 此前完成（2026-09-14 验证记录）
 
 - 适配新版 `langchain-deepseek` 的类型定义，在 Provider 边界将 API Key 转换为 `SecretStr`。
 - 将原 Express/TypeScript Server 迁移为 Python 3.13、FastAPI、Pydantic 2 和 uv。

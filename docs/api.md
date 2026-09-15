@@ -34,6 +34,11 @@
 }
 ```
 
+错误响应的 `data.requestId` 用于关联请求。Provider 应用错误还包含可选的 `data.errorCode`：
+
+- HTTP `502`：`PROVIDER_REQUEST_FAILED`，模型调用失败。
+- HTTP `503`：`PROVIDER_NOT_CONFIGURED`，选择 DeepSeek 但未配置 API Key。
+
 ## 接口总览
 
 | 模块         | 方法   | 路径                                             | 状态   |
@@ -100,7 +105,7 @@ POST /api/v1/chat/messages
 }
 ```
 
-继续会话：
+续传会话 ID：
 
 ```json
 {
@@ -108,6 +113,9 @@ POST /api/v1/chat/messages
   "content": "继续刚才的话题"
 }
 ```
+
+当前服务端仅生成或回传 `conversationId`，不会持久化消息或按该 ID 加载历史。
+每次只将本次 `content` 传给模型，因此续传 ID 尚不提供多轮上下文记忆。
 
 #### 响应参数
 
@@ -337,3 +345,5 @@ DELETE /api/v1/conversations/:conversationId
 | `413`       | 请求体过大   |
 | `500`       | 服务端错误   |
 | `501`       | 接口尚未实现 |
+| `502`       | 模型调用失败 |
+| `503`       | 模型配置缺失 |
