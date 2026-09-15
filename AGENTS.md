@@ -5,7 +5,7 @@
 
 1. `docs/handoff.md`：最近一次开发交接、验证结果和下一步。
 2. `docs/project-status.md`：当前已经实现和尚未实现的能力。
-3. `docs/python-migration.md`：架构决策、迁移背景和长期任务。
+3. `README.md`：启动方式、架构与设计原则。
 4. 按任务需要阅读 `docs/api.md` 或 `docs/database.md`。
 
 代码是最终事实来源。如果代码、测试和文档不一致，先指出差异，再根据实际实现同步文档。
@@ -43,8 +43,10 @@ Windows Python 解释器位于 `apps/server/.venv/Scripts/python.exe`，macOS �
 - 本地和自动化测试默认使用 Mock Provider，不发送真实 DeepSeek 请求。
 - 新增或修改接口时同步更新 `docs/api.md`；改变实现状态时同步更新
   `docs/project-status.md`。
-- 数据库设计变化同步更新 `docs/database.md`；重大架构决策记录到
-  `docs/python-migration.md` 或新增 ADR。
+- 数据库设计变化同步更新 `docs/database.md`；架构原则变化同步更新 `README.md` 的
+  “架构与设计原则”。需要详细记录的重大决策可新增 ADR，并从 README 链接。
+- 后续任务和非目标统一维护在 `docs/project-status.md`；`docs/handoff.md` 只记录最近工作面，
+  避免重复维护完整功能和任务清单。
 
 ## 每次会话结束前
 

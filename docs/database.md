@@ -1,8 +1,11 @@
 # 数据库设计
 
+本页是待实现的数据库设计方案。当前项目没有数据库运行时、migration 或业务表，
+下文的表结构、SQL 和事务流程均用于后续实现；实际进度见 [项目进度](project-status.md)。
+
 ## 1. 设计说明
 
-- 数据库使用 PostgreSQL，应用层计划通过 SQLAlchemy 2 的异步接口访问，并使用 Alembic 管理迁移。
+- 计划使用 PostgreSQL，通过 SQLAlchemy 2 的异步接口访问，并使用 Alembic 管理迁移。
 - 当前阶段不维护 `User`、`App` 实体；`userId`、`appId` 保存外部业务系统传入的标识。
 - 所有业务主键使用 UUID。Python 属性与数据库表名、列名统一使用 snake_case；HTTP JSON
   继续使用 camelCase 以兼容现有 Web API。
@@ -46,13 +49,13 @@ erDiagram
 | 字段                                    | PostgreSQL 类型  | Nullable | 默认值              | 约束                          | 说明                                            |
 | --------------------------------------- | ---------------- | -------- | ------------------- | ----------------------------- | ----------------------------------------------- |
 | `id`                                    | `uuid`           | 否       | `gen_random_uuid()` | PK                            | 模型内部 ID                                     |
-| `provider`                              | `varchar(50)`    | 否       | —                   | 与 `providerModelId` 联合唯一   | Provider 标识，如 `deepseek`                    |
-| `providerModelId` (`provider_model_id`) | `varchar(100)`   | 否       | —                   | 与 `provider` 联合唯一          | Provider 侧的模型 ID，如 `deepseek-chat`        |
+| `provider`                              | `varchar(50)`    | 否       | —                   | 与 `providerModelId` 联合唯一 | Provider 标识，如 `deepseek`                    |
+| `providerModelId` (`provider_model_id`) | `varchar(100)`   | 否       | —                   | 与 `provider` 联合唯一        | Provider 侧的模型 ID，如 `deepseek-chat`        |
 | `displayName` (`display_name`)          | `varchar(100)`   | 否       | —                   | —                             | 前端展示名称                                    |
 | `description`                           | `text`           | 是       | `NULL`              | —                             | 模型说明                                        |
 | `contextWindow` (`context_window`)      | `integer`        | 是       | `NULL`              | `> 0`                         | 上下文窗口；未知时为空                          |
 | `maxOutputTokens` (`max_output_tokens`) | `integer`        | 是       | `NULL`              | `> 0`                         | 最大输出 token 数；未知时为空                   |
-| `capabilities`                          | `jsonb`          | 否       | `'{}'::jsonb`       | 必须是 JSON object             | 能力元数据，如是否支持 tools、vision、streaming |
+| `capabilities`                          | `jsonb`          | 否       | `'{}'::jsonb`       | 必须是 JSON object            | 能力元数据，如是否支持 tools、vision、streaming |
 | `isEnabled` (`is_enabled`)              | `boolean`        | 否       | `true`              | —                             | 是否允许创建新的 Run                            |
 | `sortOrder` (`sort_order`)              | `integer`        | 否       | `0`                 | —                             | 模型列表展示顺序                                |
 | `createdAt` (`created_at`)              | `timestamptz(3)` | 否       | `now()`             | —                             | 创建时间                                        |
@@ -70,7 +73,7 @@ erDiagram
 | `userId` (`user_id`)       | `varchar(100)`   | 否       | —                   | —                                      | 外部用户标识           |
 | `appId` (`app_id`)         | `varchar(100)`   | 否       | —                   | —                                      | 外部应用标识           |
 | `modelId` (`model_id`)     | `uuid`           | 否       | —                   | FK → `models.id`，`ON DELETE RESTRICT` | 后续回复默认使用的模型 |
-| `title`                    | `varchar(100)`   | 否       | `'新会话'`           | 非空白字符串                             | 会话标题               |
+| `title`                    | `varchar(100)`   | 否       | `'新会话'`          | 非空白字符串                           | 会话标题               |
 | `createdAt` (`created_at`) | `timestamptz(3)` | 否       | `now()`             | —                                      | 创建时间               |
 | `updatedAt` (`updated_at`) | `timestamptz(3)` | 否       | `now()`             | —                                      | 最近活动时间           |
 
@@ -84,8 +87,8 @@ erDiagram
 | ------------------------------------ | ---------------- | -------- | ------------------- | -------------------------------------------- | -------- |
 | `id`                                 | `uuid`           | 否       | `gen_random_uuid()` | PK                                           | 消息 ID  |
 | `conversationId` (`conversation_id`) | `uuid`           | 否       | —                   | FK → `conversations.id`，`ON DELETE CASCADE` | 所属会话 |
-| `role`                               | `message_role`   | 否       | —                   | 枚举：`user`、`assistant`                     | 消息角色 |
-| `content`                            | `text`           | 否       | —                   | 非空白字符串                                   | 消息正文 |
+| `role`                               | `message_role`   | 否       | —                   | 枚举：`user`、`assistant`                    | 消息角色 |
+| `content`                            | `text`           | 否       | —                   | 非空白字符串                                 | 消息正文 |
 | `createdAt` (`created_at`)           | `timestamptz(3)` | 否       | `now()`             | —                                            | 创建时间 |
 
 模型信息不在 Message 中重复保存。查询助手消息的 `modelId` 时，通过 `runs.output_message_id` 关联 Run 获取。这样可以避免 Message 与 Run 中的模型信息不一致。
@@ -96,23 +99,23 @@ erDiagram
 
 Run 表示一次完整的模型调用。输入消息写入后立即创建 Run，模型调用成功、失败或取消都必须留下最终状态。
 
-| 字段                                        | PostgreSQL 类型  | Nullable | 默认值              | 约束                                           | 说明                                  |
-| ------------------------------------------- | ---------------- | -------- | ------------------- | ---------------------------------------------- | ------------------------------------- |
-| `id`                                        | `uuid`           | 否       | `gen_random_uuid()` | PK                                             | Run ID                                |
-| `conversationId` (`conversation_id`)        | `uuid`           | 否       | —                   | FK → `conversations.id`，`ON DELETE CASCADE`   | 所属会话                              |
-| `inputMessageId` (`input_message_id`)       | `uuid`           | 否       | —                   | FK → `messages.id`，`ON DELETE RESTRICT`       | 本次调用的用户消息                    |
-| `outputMessageId` (`output_message_id`)     | `uuid`           | 是       | `NULL`              | FK → `messages.id`，`ON DELETE RESTRICT`；唯一  | 成功生成的助手消息                    |
-| `modelId` (`model_id`)                      | `uuid`           | 否       | —                   | FK → `models.id`，`ON DELETE RESTRICT`         | 本次实际使用的模型                    |
-| `status`                                    | `run_status`     | 否       | `queued`            | 枚举                                            | 执行状态                              |
-| `providerRequestId` (`provider_request_id`) | `varchar(200)`   | 是       | `NULL`              | —                                              | Provider 返回的请求 ID，用于排障      |
-| `promptTokens` (`prompt_tokens`)            | `integer`        | 是       | `NULL`              | `>= 0`                                         | 输入 token 数                         |
-| `completionTokens` (`completion_tokens`)    | `integer`        | 是       | `NULL`              | `>= 0`                                         | 输出 token 数                         |
-| `errorCode` (`error_code`)                  | `varchar(100)`   | 是       | `NULL`              | —                                              | 规范化错误码                          |
-| `errorMessage` (`error_message`)            | `text`           | 是       | `NULL`              | —                                              | 脱敏后的错误摘要                      |
-| `startedAt` (`started_at`)                  | `timestamptz(3)` | 是       | `NULL`              | —                                              | 开始调用 Provider 的时间              |
-| `finishedAt` (`finished_at`)                | `timestamptz(3)` | 是       | `NULL`              | —                                              | 进入终态的时间                        |
-| `createdAt` (`created_at`)                  | `timestamptz(3)` | 否       | `now()`             | —                                              | 创建时间                              |
-| `updatedAt` (`updated_at`)                  | `timestamptz(3)` | 否       | `now()`             | —                                              | 更新时间，由应用服务维护              |
+| 字段                                        | PostgreSQL 类型  | Nullable | 默认值              | 约束                                           | 说明                             |
+| ------------------------------------------- | ---------------- | -------- | ------------------- | ---------------------------------------------- | -------------------------------- |
+| `id`                                        | `uuid`           | 否       | `gen_random_uuid()` | PK                                             | Run ID                           |
+| `conversationId` (`conversation_id`)        | `uuid`           | 否       | —                   | FK → `conversations.id`，`ON DELETE CASCADE`   | 所属会话                         |
+| `inputMessageId` (`input_message_id`)       | `uuid`           | 否       | —                   | FK → `messages.id`，`ON DELETE RESTRICT`       | 本次调用的用户消息               |
+| `outputMessageId` (`output_message_id`)     | `uuid`           | 是       | `NULL`              | FK → `messages.id`，`ON DELETE RESTRICT`；唯一 | 成功生成的助手消息               |
+| `modelId` (`model_id`)                      | `uuid`           | 否       | —                   | FK → `models.id`，`ON DELETE RESTRICT`         | 本次实际使用的模型               |
+| `status`                                    | `run_status`     | 否       | `queued`            | 枚举                                           | 执行状态                         |
+| `providerRequestId` (`provider_request_id`) | `varchar(200)`   | 是       | `NULL`              | —                                              | Provider 返回的请求 ID，用于排障 |
+| `promptTokens` (`prompt_tokens`)            | `integer`        | 是       | `NULL`              | `>= 0`                                         | 输入 token 数                    |
+| `completionTokens` (`completion_tokens`)    | `integer`        | 是       | `NULL`              | `>= 0`                                         | 输出 token 数                    |
+| `errorCode` (`error_code`)                  | `varchar(100)`   | 是       | `NULL`              | —                                              | 规范化错误码                     |
+| `errorMessage` (`error_message`)            | `text`           | 是       | `NULL`              | —                                              | 脱敏后的错误摘要                 |
+| `startedAt` (`started_at`)                  | `timestamptz(3)` | 是       | `NULL`              | —                                              | 开始调用 Provider 的时间         |
+| `finishedAt` (`finished_at`)                | `timestamptz(3)` | 是       | `NULL`              | —                                              | 进入终态的时间                   |
+| `createdAt` (`created_at`)                  | `timestamptz(3)` | 否       | `now()`             | —                                              | 创建时间                         |
+| `updatedAt` (`updated_at`)                  | `timestamptz(3)` | 否       | `now()`             | —                                              | 更新时间，由应用服务维护         |
 
 业务约束：
 
@@ -127,7 +130,7 @@ Run 表示一次完整的模型调用。输入消息写入后立即创建 Run，
 ## 4. 枚举与状态
 
 ### 4.1 `message_role`
- 
+
 | 值          | 说明                     |
 | ----------- | ------------------------ |
 | `user`      | 用户输入                 |
@@ -186,7 +189,7 @@ PostgreSQL 不会自动为外键列创建索引，因此所有高频关联和删
 | `messages`      | `(conversation_id, created_at DESC, id DESC)` | B-tree              | 查询会话消息与游标分页           |
 | `runs`          | `(conversation_id, created_at DESC, id DESC)` | B-tree              | 查询会话执行历史                 |
 | `runs`          | `(input_message_id, created_at DESC)`         | B-tree              | 查询某条输入的重试/重新生成记录  |
-| `runs`          | `(output_message_id)`                         | UNIQUE，允许 `NULL`  | 保证一条助手消息最多属于一个 Run |
+| `runs`          | `(output_message_id)`                         | UNIQUE，允许 `NULL` | 保证一条助手消息最多属于一个 Run |
 | `runs`          | `(model_id)`                                  | B-tree              | 外键检查、按模型统计调用         |
 | `runs`          | `(status, created_at)`                        | B-tree              | 扫描待执行或超时 Run             |
 

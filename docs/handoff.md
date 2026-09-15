@@ -1,78 +1,63 @@
 # 开发交接
 
-本页用于在 Windows、macOS 和不同 Codex 会话之间传递最近上下文。它只记录当前工作面，
-长期事实以 `project-status.md`、`python-migration.md`、代码和测试为准。
+本页用于在 Windows、macOS 和不同会话之间传递最近工作上下文。架构原则与启动方式见
+[README](../README.md)，完整能力和后续任务见 [项目进度](project-status.md)。
+历史改动通过 Git 追溯，代码和测试是实现状态的最终依据。
 
 ## 当前快照
 
 - 更新时间：2026-09-15。
 - 分支：`main`。
-- 文档核对基线：HEAD 为 `0005fd2 fix：修复`；与本地远程跟踪分支 `origin/main`
-  无领先或落后提示，本次未 fetch 或 push。
+- 本次基线：`a3d41b5 docs: 更新`；开始时工作区干净，与本地远程跟踪分支 `origin/main`
+  无领先或落后提示。本次未 fetch、提交或 push。
+- 当前目标：合并重复文档，统一架构原则、状态与任务的维护位置。
 - 当前阶段：Vue + FastAPI 最小聊天闭环已经跑通，下一阶段尚未开始。
 - 推荐的下一项任务：完成 SSE 流式聊天和前端请求取消，暂不同时展开数据库与 Agent。
 
 ## 最近完成
 
-### 2026-09-15：文档事实校对
+### 2026-09-15：文档整理
 
-- 目标：使接口说明与当前代码行为一致，保持交接记录聚焦项目实现状态。
-- 同步 `docs/api.md` 已实现的 Provider `502/503` 与可选 `data.errorCode`，澄清会话 ID
-  不代表历史记忆；将 `docs/database.md` 对 Chat 的“占位实现”描述改为无持久化的单轮聊天。
-- 应用实现、依赖和架构未变化，RunStep、工具消息与等待审批状态仍需后续设计。
-- 验证：`git diff --check` 通过。仅文档变化，未重跑应用 lint、测试与构建；
-  后续保留的应用验证结果属于此前会话。本地未安装可执行的 Prettier，未完成格式工具检查。
-- 阻塞：无。下一步实现 SSE 流式聊天和请求取消。
+- `README.md` 收录迁移背景和四条架构原则，统一安装说明与文档导航。
+- `docs/project-status.md` 合并 P0/P1/P2 后续任务、非目标及待补设计，保留原有任务细节。
+- `docs/api.md` 明确 `501` 规划接口的参数与成功响应尚未实现；`docs/database.md`
+  明确全文为待实现的数据设计。
+- 移除已合并的独立迁移记录，同步 `AGENTS.md` 阅读顺序和文档维护约定。
+- 本页精简为近期改动、验证和下一步；未改变业务实现或架构决策。
 
-### 此前完成（2026-09-14 验证记录）
+## 验证
 
-- 适配新版 `langchain-deepseek` 的类型定义，在 Provider 边界将 API Key 转换为 `SecretStr`。
-- 将原 Express/TypeScript Server 迁移为 Python 3.13、FastAPI、Pydantic 2 和 uv。
-- 保留 `/api/v1`、统一响应结构、请求 ID 和前端调用方式。
-- 增加 Mock Provider，以及基于 `langchain-deepseek` 的 DeepSeek Provider。
-- Vue Chat 页面已能发送消息、显示回复并续传 `conversationId`。
-- 增加 4 个 FastAPI 最小测试，覆盖 Health、Mock Chat、请求校验和统一 404。
-- 清理旧 Prisma、TypeScript Server、React 依赖链接、无效配置和本地缓存。
-- 验证 Windows 上 `pnpm lint`、`pnpm test` 和 `pnpm build` 通过。
+### 本次文档检查
 
-## 当前未实现
+- 本地 Prettier 格式检查通过，覆盖 README、AGENTS 与四份 docs 文档。
+- 文档结构检查通过：18 个仓库内链接有效，12 段 JSON 示例可解析，代码围栏配对完整。
+- 旧文档引用检查和 `git diff --check` 通过；复核确认原有四项架构决策、任务细节及非目标已保留。
+- `pnpm exec prettier` 在当前环境未能解析命令；改用
+  `node node_modules/prettier/bin/prettier.cjs` 完成格式化与检查，未安装额外依赖。
+- 本次只改文档，未重跑应用 lint、测试或构建。
 
-- Chat 不是 SSE 流式响应，也不能取消正在进行的请求。
-- Conversation 和 Model 接口仍返回 `501 Not Implemented`。
-- 会话和消息没有数据库持久化。
-- 当前 LangChain 只用于模型调用，尚未实现 `create_agent`、工具循环和 Agent 状态。
-- 尚未接入 LangGraph、RAG、MCP、Trace、Eval、Docker 和 CI。
-- Python 尚未接入 Ruff/Pyright，Web 尚无组件或 E2E 测试。
+### 上一次应用验证（2026-09-14）
 
-## 已知非阻塞事项
+以下是历史验收结果，不代表本次重新运行：
 
-- Starlette TestClient 会输出一条依赖内部的 AnyIO deprecation warning。
-- Vite 构建提示主 JavaScript chunk 超过 500 kB。
+- Server：pytest `4 passed`；Web：ESLint 和 Vite 生产构建通过。
+- 根目录：`pnpm lint`、`pnpm test`、`pnpm build` 通过。
+- 联调：通过 Vite `/api` 代理完成两次 Chat 请求，确认 `conversationId` 保持不变；
+  这不代表服务端保存或传递了历史上下文。
+- DeepSeek：仅使用测试密钥完成本地初始化验证，未发起外部模型请求。
+
+## 阻塞与已知事项
+
+- 当前无阻塞。后续数据库阶段仍需补齐 RunStep、工具消息和审批状态的设计。
+- 此前测试有 AnyIO deprecation warning；Vite 提示主 JavaScript chunk 超过 500 kB。
 - Python `compileall` 不生成 `dist`，Turbo 会提示 Server build 没有匹配的输出文件。
-- `pnpm format:check` 会发现仓库既有文件尚未统一格式化；规范化任务此前明确延后。
-- 首次安装 uv 后可能需要重启 VS Code 或终端，确保 `uv` 已进入 PATH。
+- 全仓库格式规范化仍是后续任务，本次仅检查整理涉及的文档。
 
-## 新设备或新会话开始步骤
+## 下一步与接续
 
-```bash
-git pull --ff-only
-pnpm install --frozen-lockfile
-uv sync --project apps/server
-pnpm test
-```
+先定义 SSE 事件协议，接通 Mock 流式输出、前端增量显示和取消，再验证超时、断开与错误状态。
+具体任务优先级统一维护在 [项目进度](project-status.md)。
 
-随后阅读本页和 `docs/project-status.md`，检查 `git status`，确认没有来自另一台设备的未提交
-修改后再开始开发。默认使用 Mock Provider，不需要复制模型密钥。
-
-## 本次会话结束时如何更新
-
-直接修改本页对应章节，并至少记录：
-
-- 本次目标以及实际完成内容。
-- 修改过的核心文件或模块。
-- 新增的架构决策和明确放弃的方案。
-- 实际运行的验证命令与结果。
-- 未解决问题、阻塞原因和推荐下一步。
-
-更新完成后，将代码与文档放在同一次或紧邻的 Git 提交中并推送。另一台设备只需要 pull，
-新的 Codex 会根据根目录 `AGENTS.md` 自动从本页恢复上下文。
+新设备先按 [协作说明](../AGENTS.md) 检查 Git 状态与阅读文档，再参考
+[README](../README.md) 安装和启动。每次结束时更新本页的当前目标、已完成、验证、阻塞与下一步，
+并按实际情况提交和推送。

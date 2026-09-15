@@ -1,5 +1,9 @@
 # API 接口文档
 
+本页维护接口契约。接口总览标为“待实现”的 Model、Conversation 接口目前均返回 `501`；
+下文对应的参数与成功响应是目标设计，不代表已有实现。整体进度见
+[项目进度](project-status.md)。
+
 ## 基本信息
 
 | 项目         | 值                      |
@@ -90,10 +94,10 @@ POST /api/v1/chat/messages
 
 #### Body 参数
 
-| 字段              | 类型   | 必填 | 约束         | 说明                 |
-| ---------------- | ------ | --- | ------------ | ------------------- |
-| `conversationId` | string | 否  | 1–100 个字符  | 会话 ID；首次发送时不传 |
-| `content`        | string | 是  | 1–2000 个字符 | 用户输入内容           |
+| 字段             | 类型   | 必填 | 约束          | 说明                    |
+| ---------------- | ------ | ---- | ------------- | ----------------------- |
+| `conversationId` | string | 否   | 1–100 个字符  | 会话 ID；首次发送时不传 |
+| `content`        | string | 是   | 1–2000 个字符 | 用户输入内容            |
 
 #### Body 示例
 
@@ -119,13 +123,13 @@ POST /api/v1/chat/messages
 
 #### 响应参数
 
-| 字段                | 类型        | 说明              |
-| ------------------- | ----------- | ----------------- |
-| `conversationId`    | string      | 会话 ID           |
-| `message.id`        | string      | 消息 ID           |
-| `message.role`      | string      | 消息角色          |
-| `message.content`   | string      | 消息内容          |
-| `message.createdAt` | string      | ISO 8601 创建时间 |
+| 字段                | 类型   | 说明              |
+| ------------------- | ------ | ----------------- |
+| `conversationId`    | string | 会话 ID           |
+| `message.id`        | string | 消息 ID           |
+| `message.role`      | string | 消息角色          |
+| `message.content`   | string | 消息内容          |
+| `message.createdAt` | string | ISO 8601 创建时间 |
 
 #### 响应示例
 
