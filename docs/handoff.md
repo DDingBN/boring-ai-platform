@@ -6,32 +6,34 @@
 
 ## 当前快照
 
-- 更新时间：2026-09-17。
-- 分支与基线：`main`，`b8509e1 learn：1-4`；本次未 fetch、提交或 push。
-- 工作区：进入本次整理时已有 `docs/handoff.md` 修改，以及未跟踪的
-  `apps/server/learning/__init__.py`、`day05.py`、`day06_api.py`；学习代码保持原样。
-- 学习进度：D06 最小 HTTP 接口已完成，下一课 D07 请求校验与项目错误响应。
+- 更新时间：2026-09-18。
+- 基线提交：`442f411 learn：5-6`；本次未 fetch、提交或 push。
+- 工作区：D07 开课时干净，收尾时已有本会话的交接文档修改；本会话仅更新交接文档。
+- 学习进度：D07 请求校验与项目错误响应已通过学习者操作记录验收，下一课 D08。
 - 原学习大纲：`C:\Users\DDingBN\Desktop\boring-notes\+\Boring AI Platform.md`，
   位于仓库外，跨设备需单独同步；本次没有调整学习计划。
 - 项目阶段：Vue + FastAPI 最小聊天闭环已跑通；功能开发下一优先级为 SSE 流式聊天与取消。
 
 ## 最近完成
 
-### 2026-09-17：D06 收尾与交接精简
+### 2026-09-18：D07 请求校验与错误响应验收
 
-- 练习文件为 `apps/server/learning/day06_api.py`，独立端口 3002。
-  `EchoRequest` 仅声明 `content`，POST 回复中的 `source` 固定为“练习接口”。
-- 学习者已区分请求字段与固定响应字段、路径不存在与方法不匹配；D06 正常与失败验证通过。
-- 交接页改为只保留最新记录，并将覆盖更新、保留未解决事项的规则写入 `AGENTS.md`。
+- 学习者已验证长度限制、首尾空白清理、额外字段与命名映射，并能解释拒绝原因。
+- 已对应 `apps/server/app/schemas/chat.py` 的输入规则与
+  `apps/server/app/main.py` 的 `validation_error_handler`，区分校验与错误响应包装。
+- 已对照独立 D06 应用默认 422 与正式项目自定义 400；未修改业务代码或生产校验规则。
 
 ## 验证
 
-- D06 此前实测：POST `/echo` 提交 `{"content":"你好"}`，返回 HTTP 200 与
-  `{"message":"你好","source":"练习接口"}`。
-- 学习者此前日志：GET `/hello` 返回 200，GET `/learning-not-found` 返回 404，
-  GET `/echo` 返回 405；已正确解释原因，错误响应正文未另行提交。
-- 本次仅修改文档，未重复发请求，未运行应用 lint、测试或构建。
-- 本次文档检查：`AGENTS.md` 与本页的 Prettier 检查、`git diff --check` 均通过。
+- 以下为本会话学习者提供的 Swagger 实测记录，助手未另行发送 HTTP 请求：
+  - 正常文字首尾有空格：200，Mock 回复去掉首尾空格后的文字。
+  - 全空白、额外字段：400；空白请求的响应头与正文请求 ID 一致。
+  - 2001 个字符：400；2000 个字符：200。
+  - `conversationId`：200，回传 `demo_07`；改为 `conversation_id`：400。
+  - 同样提交 `{}`：D06 `/echo` 返回 422，`detail` 中为 `missing`、
+    `loc: ["body", "content"]`、`Field required`；正式 Chat 返回 400、
+    `msg: 请求参数无效。`，正文包含请求 ID。
+- 本次仅修改文档，未运行应用 lint、测试或构建，未运行 Prettier；使用 `git diff --check` 检查文档差异。
 
 ## 阻塞与已知事项
 
@@ -41,9 +43,8 @@
 
 ## 下一步与接续
 
-从 D07 开始：阅读 `apps/server/app/schemas/chat.py` 与 `apps/server/app/main.py`，
-讲解长度限制、去除首尾空白、额外字段与命名映射，再使用正式项目端口 3001 验证合法和非法请求。
-区分练习应用默认校验错误 422 与正式项目自定义校验错误 400；不修改生产校验规则。
+进入 D08：理解 Service、Provider 和依赖传入。先阅读原大纲 D08 并具体化小任务，
+继续按零后端、零 Python 基础讲解；不直接跳到 SSE 或要求编写尚未讲解的测试。
 
 新设备先按 [协作说明](../AGENTS.md) 检查 Git 状态与阅读文档。
 结束时覆盖更新本页，并提醒提交和推送；未经用户明确要求不自行 push。
