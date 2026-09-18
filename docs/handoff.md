@@ -7,36 +7,34 @@
 ## 当前快照
 
 - 更新时间：2026-09-18。
-- 基线提交：`721c977 learn: D08`；本次未 fetch、提交或 push。
-- 工作区：D09 开课时干净；本次仅更新交接文档。
-- 学习进度：D09 请求流向、解包理解及正常、失败、恢复操作均已验收；下一课 D10。
-- 原学习大纲：`C:\Users\DDingBN\Desktop\boring-notes\+\Boring AI Platform.md`，
+- 基线提交：`66d9c6a learn: D09`；本次未 fetch、提交或 push。
+- 工作区：学习者新增 D10 练习目录尚未提交；助手仅更新交接文档。
+- 学习进度：D10 正常、失败、恢复闭环已验收；下一单元 D11。
+- 原学习大纲本机路径：`/Users/ddingbn/Documents/ObsidianLibrary/boring-notes/+/Boring AI Platform.md`。
+  Windows 原路径：`C:\Users\DDingBN\Desktop\boring-notes\+\Boring AI Platform.md`，
   位于仓库外，跨设备需单独同步；本次没有调整学习计划。
 - 项目阶段：Vue + FastAPI 最小聊天闭环已跑通；功能开发下一优先级为 SSE 流式聊天与取消。
 
 ## 最近完成
 
-### 2026-09-18：D09 完整聊天链路验收
+### 2026-09-18：D10 断言与最小测试验收
 
-- 已阅读原大纲 D09，核对 ChatPage、request.js、Vite 代理、FastAPI 注册、请求模型、
-  Chat 路由、Service、Mock Provider 与统一响应代码。
-- 学习者提交请求流向草稿，审查中补齐校验、业务处理、模型适配、解包和页面更新的位置；
-  明确 base.py 是方法约定、mock.py 是本次实现，后端完整路径含 /api/v1 前缀。
-- 学习者能说明页面拿到 body.data 后直接使用 response.message；补充澄清
-  const body = response.data 是引用已有响应体，不是新增一层包装。
-- 结合操作证据解释：用户消息先加入列表；400 经请求工具转为失败，页面进入 catch，
-  不执行 await 后的助手消息追加；finally 恢复发送状态，下一次发送清除旧错误。
-- 未修改业务代码或练习文件，项目能力状态未变化。
+- 学习者自行编写 `apps/server/tests/learning/test_day10.py`，两个测试分别检查
+  make_reply 对“你好”和“今天学习测试”的完整回复。
+- 已学习函数返回值、相等比较、assert 与 pytest 测试发现；实际值来自函数运行，
+  预期值来自事先约定的要求。经纠正后，学习者说明应恢复函数，因为预期是希望得到的结果。
+- 学习者完成正常通过、临时把返回前缀改为“回复：”导致失败、恢复“收到：”后重新通过。
+  两个测试预期始终保持不变；当前本地文件已恢复正确实现。
+- 助手未代写或修改练习代码；业务能力状态未变化。
 
 ## 验证
 
-- 学习者正常记录：POST `http://127.0.0.1:5173/api/v1/chat/messages`，请求 content 为
-  `D09 路线练习`，HTTP 200，助手文字为 `Python 服务端已收到：D09 路线练习`。
-- 学习者按超长输入任务提交失败记录：HTTP 400，msg 为“请求参数无效。”；页面保留用户
-  消息、未新增助手消息，显示错误提示且输入框恢复正常。
-- 恢复请求记录：HTTP 200，助手回复“Python 服务端已收到：恢复检查”。
-- 助手依据学习者操作记录与源码核对验收，未自行启动应用或复跑请求。
-- 本次仅修改文档，未运行 lint、测试、构建或 Prettier；使用 `git diff --check` 检查差异。
+- 学习者提交恢复后的定向运行记录：`2 passed in 0.00s`。
+- 本次助手核对本地恢复代码，并在 `apps/server` 执行 `./.venv/bin/python -m pytest -q`：
+  `6 passed, 1 warning in 0.42s`，包括 2 项 D10 练习和 4 项既有接口测试。
+- warning 来自 Starlette TestClient 使用已弃用的 anyio BlockingPortal 别名，不影响本次通过。
+- 此前失败实验由助手定向复跑确认 `2 failed`，首项实际“回复：你好”、预期“收到：你好”。
+- 本次执行 `git diff --check`；仅涉及学习测试与交接文档，未运行 Web lint 或构建。
 
 ## 阻塞与已知事项
 
@@ -46,8 +44,10 @@
 
 ## 下一步与接续
 
-进入 D10：先阅读原大纲对应单元，从 assert 和最小测试开始，继续按零基础节奏。
-先讲问题、概念、具体文件和运行命令，再给提示让学习者尝试；不提前代写完整作业。
+进入 D11 前阅读原大纲对应单元，先讲 TestClient、with 和资源清理，再提供独立
+create_app() 与 /health 测试示例；让学习者尝试不存在路径的 404 测试。
+pytest.raises 尚未教学，如需补充，先用普通函数说明预期异常；不要视为已经掌握。
+继续保持先提示、学习者尝试、审查解释、正常与失败验证的节奏。
 
 新设备先按 [协作说明](../AGENTS.md) 检查 Git 状态与阅读文档。
 结束时覆盖更新本页，并提醒提交和推送；未经用户明确要求不自行 push。
