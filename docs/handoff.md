@@ -5,42 +5,40 @@
 
 ## 当前快照
 
-- 更新时间：2026-09-21。
-- 本轮开始时交接已修改，学习者新增 sse_format.py 尚未跟踪；助手仅更新交接，未修改练习、提交或 push。
+- 更新时间：2026-09-22。
+- 本轮开始时 docs/handoff.md 已修改，学习者新增 sse_flow.py 尚未跟踪；助手本轮仅修改文档，未提交或 push。
 - D10、D11 已验收；D12 按学习者意愿暂缓，未验收。
-- M04 第一单元普通生成器、第二单元异步生成器：正常与中途失败均已验收。
-- 当前为 M04 第三单元 SSE 事件格式：正常编码与缺少空行的失败观察均已验证；当前文件仍为单换行错误版本，等待学习者恢复双换行并确认输出后收尾。
-- 原学习大纲：`C:\Users\DDingBN\Desktop\boring-notes\+\Boring AI Platform.md`，本会话已读取，未修改。
-  macOS 路径为 `/Users/ddingbn/Documents/ObsidianLibrary/boring-notes/+/Boring AI Platform.md`，跨设备需单独同步。
-- 项目业务能力未变化，仍无 SSE 接口；本单元仅为独立文本编码练习。
+- M04 四个单元已完成带学与练习验收；终态规则和单事件边界曾混淆，经反馈纠正，M05 起步时简短复习。
+- 下一起点为 M05 第一个单元：通过独立 HTTP 接口发送固定 SSE 事件，再逐步接入页面。
+- 原学习大纲：`C:\Users\DDingBN\Desktop\boring-notes\+\Boring AI Platform.md`；macOS 路径为 `/Users/ddingbn/Documents/ObsidianLibrary/boring-notes/+/Boring AI Platform.md`，跨设备需单独同步。
+- 项目仍无 SSE 业务接口或前端流解析。M04 事件约定已写入 docs/api.md 的待实现学习设计，不代表业务功能完成。
 
 ## 最近完成
 
-### 2026-09-21：M04 SSE 空行边界失败观察通过
+### 2026-09-22：M04 事件流程与边界辨析收尾
 
-- 前两单元文件为 `apps/server/learning/stream_basics.py` 和 `stream_async.py`，均保留第二段之前主动抛出 ValueError 的版本；正常与失败均有学习者输出及代码审查证据。
-- 学习者已创建 `apps/server/learning/sse_format.py`：正常版本正确编码 JSON、event/data 行及末尾双换行；已改为 return event_text，由外部循环接收并打印，循环后 repr 检查最后一条事件。助手未代改代码。
-- 解释 event、data、空行分隔，区分 SSE 外层文本与本练习 data 内的 JSON；delta 为练习约定的事件名。
-- 起步示例使用 json.dumps(..., ensure_ascii=False) 编码单段文本，以 \n\n 结束事件，print(..., end="") 避免额外换行，repr 用于检查边界。
-- 学习者将事件末尾双换行改为单换行，输出显示两段之间无空行、repr 结尾仅一个换行。已解释：新 event 行不能替代空行；无空行则尚不交付事件，流结束时丢弃未完成事件；若随后才补空行，两条 data 行会组成一条多行数据事件，不再是两个独立 JSON 事件。
-- 尚未编写 SSE 解析器或接口；明确一次网络读取不等于一条完整事件。开始、完成、错误事件和请求关联字段留待后续逐步讨论。
+- 第一、第二单元：普通及异步生成器的正常/中途失败输出已验证；文件 stream_basics.py、stream_async.py 保留主动失败示例。
+- 第三单元：sse_format.py 正常编码、缺少空行观察已验证，代码已恢复双换行。函数返回字符串，由调用者打印。
+- 第四单元：sse_flow.py 正常序列 start → 两条 delta → done 与固定失败序列 start → delta → error 均已运行通过。当前文件保留失败样例；done_event 被编码但未打印，不构成发送成功事件。
+- 学习者最初把终态后的事件当作可重新改变状态，经解释后正确识别 done 之后的 delta 违法。
+- 学习者曾认为完整 delta 也要等 done/error 才能处理。经区分“空行结束当前事件”和“done/error 结束整个回复”后，已正确回答：完整 delta 能显示，但不能标记整个回复成功。
+- 状态表与最小事件字段记录于 docs/api.md：start 带 requestId，delta 带 text，done 为空对象，error 带 message。普通 JSON 契约保留。
 
 ## 验证
 
-- 本轮读取 Git 状态、交接和学习者 SSE 练习；本会话此前已查阅 WHATWG SSE 标准。
-- 此前在 apps/server 执行项目 Python 的 learning/sse_format.py：沙箱启动被拒，提权执行成功；初次输出中文编码不匹配，使用 -X utf8 重跑得到正确中文、两条事件和末尾双换行，退出码 0。执行 git diff --check；未运行 pytest、Web lint 或构建。
-- 前两单元按学习者输出和本地代码验收；第二单元异常从 generate_parts 传到 async for，再传至 asyncio.run，后续片段与正常结束提示未执行。
-- 本会话此前确认项目 Python 为 3.13.15；第三单元正常编码已由助手运行核对；本轮根据学习者失败输出和本地单换行代码验收格式失败观察，未运行网络解析器或浏览器。当前仅更新交接并执行 git diff --check，未重跑脚本。
+- 本轮仅更新文档，执行 git diff --check；未重跑 Python、pytest、Web lint 或构建。
+- 此前在 apps/server 用项目 Python -X utf8 运行 sse_flow.py，正常与固定失败版本均退出码 0，字段、事件顺序及空行符合预期。沙箱启动曾被拒，经提权执行成功。
+- 第三单元正常编码此前由助手运行；缺少空行输出由学习者提供。前两单元正常和异常输出由学习者提供并核对本地代码。
+- 状态和边界理解经本会话问答确认；没有实际 HTTP 流、浏览器解析或网络分片验证，不将固定 error 文本视为真实异常处理已实现。
 
 ## 阻塞与已知事项
 
-- 无学习阻塞；D12 暂缓，不将依赖覆盖、fixture 或测试替身视为已掌握。
-- pytest.raises 尚未教学。
+- 无学习阻塞；D12 暂缓，不将依赖覆盖、fixture、pytest.raises 或测试替身视为已掌握。
+- 事件边界/回复终止是需要在 M05 复习的重点；解析器实现与异常到 SSE 事件的映射尚未教学。
 
 ## 下一步与接续
 
-等待学习者将 sse_format.py 事件结尾恢复为双换行，再运行确认空行和 repr 后完成本单元收尾。
-正常与失败文本已有证据；解析行为按 WHATWG 标准解释，无网络解析运行，不能宣称实际浏览器已验证。repr 行仅为调试内容，不属于要发送的事件流。
-验证后逐步讨论开始、增量、完成、错误事件及唯一终止结果，再形成事件样例和状态表。
-继续明确文件、目录、命令和预期，先提示再尝试，不提前代写完整作业。
-结束时更新本页；有改动时提醒提交和推送，未经明确要求不自行 push。
+按原大纲进入 M05 第一个单元，先提供独立流接口起步示例、具体文件和运行目录，再观察固定事件的实际到达。
+使用独立练习应用及端口，不直接注册为业务 API。后续使用 fetch 前补字节、UTF-8 增量解码和网络读取不等于事件边界的实验。
+继续先讲必要概念、给提示、让学习者尝试后审查，正常和失败均留下真实证据；不提前代写完整作业。
+有改动时提醒提交并推送，未经明确要求不自行 push。

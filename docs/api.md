@@ -56,6 +56,42 @@
 | Conversation | PATCH  | `/api/v1/conversations/:conversationId`          | 待实现 |
 | Conversation | DELETE | `/api/v1/conversations/:conversationId`          | 待实现 |
 
+## SSE 事件约定（M04 学习设计，待实现）
+
+以下是独立练习确认的最小事件约定，尚无流式 HTTP 接口或前端解析实现，不代表项目已支持 SSE。
+接口路径与 HTTP 接入细节在 M05 确定。现有普通 JSON 接口及 `{ code, msg, data }` 保持兼容；
+未来 SSE 响应使用 `text/event-stream`，不套用普通 JSON 响应解包器。
+
+| 事件名 | data 的 JSON 示例 | 含义 |
+| ------ | ----------------- | ---- |
+| `start` | `{"requestId":"req_demo_001"}` | 开始本次回复 |
+| `delta` | `{"text":"你好"}` | 可立即追加显示的文字片段 |
+| `done` | `{}` | 成功完成 |
+| `error` | `{"message":"模拟生成失败"}` | 失败结束 |
+
+`requestId` 标识本次请求，不是会话 ID。练习使用固定值；接入 HTTP 时应与该请求的
+`x-request-id` 一致。同一响应流内后续事件关联其 `start` 中的请求 ID。
+
+正常序列为 `start → delta → delta → done`；中途失败示例为 `start → delta → error`。
+`start` 只出现一次，`delta` 可以出现零次或多次。受控执行以 `done` 或 `error` 之一结束，
+终止后不再发送本次回复的事件。断线可能导致终止事件未送达，不能把连接结束视为成功。
+
+| 当前状态 | 事件 | 下一状态或处理 |
+| -------- | ---- | -------------- |
+| 未开始 | `start` | 进行中 |
+| 进行中 | `delta` | 追加文字，保持进行中 |
+| 进行中 | `done` | 已成功结束 |
+| 进行中 | `error` | 已失败结束 |
+| 已成功结束或已失败结束 | 任意后续事件 | 违反约定，不改变终态 |
+
+其他未列出的转换也不合法，例如未开始就收到 `delta`、进行中再次收到 `start`。
+
+每条练习事件按 `event: 名称\ndata: JSON文本\n\n` 编码。最后的空行结束当前事件，
+`done`/`error` 则结束整个回复流程，两者不可混淆。完整 `delta` 可以立即显示，
+不必等 `done`，但只有 `done` 才表示整个回复成功。
+一次网络读取可能仅包含半条事件，也可能包含多条事件，接收端必须按事件边界组装。
+JSON 编码、固定序列输出已在终端练习；网络分片、异常映射和浏览器处理仍待实现验证。
+
 ## Health
 
 ### 1.健康检查
