@@ -27,7 +27,7 @@
 - FastAPI 自动生成 OpenAPI 与 Swagger 文档。
 
 当前 Chat 只把本次 `content` 传给 Provider。`conversationId` 仅生成或原样返回，前端续传
-该 ID 不代表服务端保存了会话，也不会为模型提供历史上下文。当前没有 SSE、请求取消、
+该 ID 不代表服务端保存了会话，也不会为模型提供历史上下文。当前业务接口没有 SSE、请求取消、
 Agent 工具循环或 LangGraph 运行时。
 
 ## 数据库状态
