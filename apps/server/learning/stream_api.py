@@ -1,9 +1,9 @@
-import asyncio
 import json
 
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 
+from learning.mock_stream import mock_parts
 
 app = FastAPI()
 
@@ -13,15 +13,16 @@ def encode_event(name, payload):
     return "event: " + name + "\n" + "data: " + data_text + "\n\n"
 
 
-full_text = ["你好，", "我是 Mock。"]
-
-
 async def generate_events():
     yield encode_event("start", {"requestId": "req_demo_001"})
-    await asyncio.sleep(1)
-    for text in full_text:
-        yield encode_event("delta", {"text": text})
-        await asyncio.sleep(1)
+
+    try:
+        async for part in mock_parts():
+            yield encode_event("delta", {"text": part})
+    except ValueError as error:
+        yield encode_event("error", {"message": str(error)})
+        return
+
     yield encode_event("done", {})
 
 
