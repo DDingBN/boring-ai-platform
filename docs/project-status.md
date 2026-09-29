@@ -21,6 +21,7 @@
 - Python 3.13、FastAPI、Pydantic 2 和 uv 基础工程。
 - 健康检查、请求 ID、统一响应格式、请求校验和统一错误处理。
 - Mock Provider 默认无需密钥即可运行。
+- Mock Provider 与独立的 StreamChatService 可逐段产出文字，但尚未接入业务 HTTP 路由。
 - DeepSeek Provider 通过 `langchain-deepseek` 调用真实模型。
 - Chat 请求参数校验、会话 ID 生成和助手响应。
 - Model 与 Conversation 规划接口返回明确的 `501 Not Implemented` 响应。
